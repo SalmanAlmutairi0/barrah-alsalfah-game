@@ -7,6 +7,7 @@ export type PlayerInfo = {
   playerName: string;
   roomKey: string;
   roomID: number;
+  isHost: boolean; 
 };
 
 export function usePlayerInfo() {
@@ -17,6 +18,7 @@ export function usePlayerInfo() {
       playerName: "",
       roomKey: "",
       roomID: 0,
+      isHost: false,
     }
   );
 
@@ -25,7 +27,7 @@ export function usePlayerInfo() {
   };
 
   const deletePlayerInfo = () => {
-    setPlayerInfo({ playerID: 0, playerName: "", roomKey: "", roomID: 0 });
+    setPlayerInfo({ playerID: 0, playerName: "", roomKey: "", roomID: 0, isHost: false });
   };
 
   return {

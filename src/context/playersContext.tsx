@@ -66,15 +66,20 @@ export const PlayersProvider = ({ roomID, children }: PlayersProviderProps) => {
             switch (eventType) {
               case "INSERT":
                 return [...prev, newPlayer as Player];
+
               case "UPDATE":
                 const updated = newPlayer as Player;
+
                 if (!updated.is_active) {
                   // remove inactive players
                   return prev.filter((p) => p.id !== updated.id);
                 }
+
                 return prev.map((p) => (p.id === updated.id ? updated : p));
+
               case "DELETE":
                 return prev.filter((p) => p.id !== (old as Player).id);
+
               default:
                 return prev;
             }

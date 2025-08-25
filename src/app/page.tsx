@@ -71,6 +71,7 @@ export default function Home() {
         playerName: playerName,
         roomKey: roomData.room_key,
         roomID: roomData.roomID,
+        isHost: true,
       });
 
       router.push(`/room/${roomData.room_key}`);
@@ -97,6 +98,7 @@ export default function Home() {
         playerName: playerName,
         roomKey: roomData.roomkey,
         roomID: roomData.roomID,
+        isHost: false,
       });
 
       router.push(`/room/${roomData.roomkey}`);

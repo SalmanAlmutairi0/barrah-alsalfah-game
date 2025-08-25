@@ -3,10 +3,10 @@ import React from "react";
 import { ScrollArea } from "./ui/scroll-area";
 import PlayerCard from "./playerCard";
 import { usePlayers } from "@/hooks/usePlayers";
+import { usePlayerInfo } from "@/hooks/usePlayerInfo";
 
 export default function PlayerList() {
   const { players } = usePlayers();
-  console.log(players);
 
   return (
     <ScrollArea className="max-h-96 ">

@@ -1,12 +1,26 @@
-import React from "react";
+"use client";
+import { useState } from "react";
 import { Badge } from "./ui/badge";
 import { Crown } from "lucide-react";
+import { Button } from "./ui/button";
+import KickDialog from "./kickDialog";
+import { usePlayerInfo } from "@/hooks/usePlayerInfo";
 
 export type PlayerCardProps = {
   player: { id: number; name: string; is_host: boolean };
 };
 
-export default function PlayerCard({ player }: PlayerCardProps) {
+export default function PlayerCard({
+  player,
+}: PlayerCardProps) {
+  const [isKickDialogOpen, setIsKickDialogOpen] = useState(false);
+  const {playerInfo}= usePlayerInfo();
+  const currnetPlayerIsHost = playerInfo.isHost || false;
+
+  const handleKickPlayer = () => {
+    console.log(`kicking player: ${player.name} by host`);
+    setIsKickDialogOpen(() => !isKickDialogOpen);
+  };
   return (
     <div
       key={player.id}
@@ -18,7 +32,6 @@ export default function PlayerCard({ player }: PlayerCardProps) {
           {player.name.charAt(0).toUpperCase()}
         </div>
       </div>
-
       {player.is_host && (
         <Badge
           variant="secondary"
@@ -27,6 +40,26 @@ export default function PlayerCard({ player }: PlayerCardProps) {
           <Crown className="w-3 h-3" />
           المضيف
         </Badge>
+      )}
+      {!player.is_host && (
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleKickPlayer}
+          className={`text-red-600 cursor-pointer ${
+            !currnetPlayerIsHost ? "hidden" : ""
+          }`}
+        >
+          طرد
+        </Button>
+      )}
+
+      {isKickDialogOpen && (
+        <KickDialog
+          isKickDialogOpen={isKickDialogOpen}
+          setIsKickDialogOpen={setIsKickDialogOpen}
+          player={player}
+        />
       )}
     </div>
   );
