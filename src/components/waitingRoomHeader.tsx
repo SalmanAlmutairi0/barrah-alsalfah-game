@@ -15,8 +15,8 @@ export default function WaitingRoomHeader() {
             <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
               <Users className="w-4 h-4 text-primary-foreground" />
             </div>
-            <CardTitle className="text-2xl font-bold">
-              رقم الغرفة {playerInfo.roomKey}
+            <CardTitle className="flex items-center gap-2 text-2xl font-bold">
+              رقم الغرفة <p>{playerInfo.roomKey}</p>
             </CardTitle>
           </div>
           <CardDescription> في انتظار الاعبين (2/5)</CardDescription>
