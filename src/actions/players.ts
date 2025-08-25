@@ -17,7 +17,7 @@ export const createPlayer = async ({
 }: CreatePlayerParams) => {
   const { data, error } = await supabase
     .from("players")
-    .insert({ name: playerName, is_host: isHost, room_id: roomID })
+    .insert({ name: playerName, is_host: isHost, room_id: roomID, is_active: true })
     .select("id")
     .single<PlayerInsertResponse>();
 

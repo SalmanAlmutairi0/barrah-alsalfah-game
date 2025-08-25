@@ -9,13 +9,16 @@ export type Player = {
   room_id: string;
   score: number;
   is_host: boolean;
+  is_active: boolean;
 };
 
 type PlayersContextType = {
   players: Player[];
 };
 
-export const PlayersContext = createContext<PlayersContextType | undefined>(undefined);
+export const PlayersContext = createContext<PlayersContextType | undefined>(
+  undefined
+);
 
 type PlayersProviderProps = {
   roomID: number;
@@ -33,7 +36,8 @@ export const PlayersProvider = ({ roomID, children }: PlayersProviderProps) => {
       const { data, error } = await supabase
         .from("players")
         .select("*")
-        .eq("room_id", roomID);
+        .eq("room_id", roomID)
+        .eq("is_active", true);
 
       if (error) {
         console.error("Failed to fetch players:", error);
@@ -63,9 +67,12 @@ export const PlayersProvider = ({ roomID, children }: PlayersProviderProps) => {
               case "INSERT":
                 return [...prev, newPlayer as Player];
               case "UPDATE":
-                return prev.map((p) =>
-                  p.id === (newPlayer as Player).id ? (newPlayer as Player) : p
-                );
+                const updated = newPlayer as Player;
+                if (!updated.is_active) {
+                  // remove inactive players
+                  return prev.filter((p) => p.id !== updated.id);
+                }
+                return prev.map((p) => (p.id === updated.id ? updated : p));
               case "DELETE":
                 return prev.filter((p) => p.id !== (old as Player).id);
               default:

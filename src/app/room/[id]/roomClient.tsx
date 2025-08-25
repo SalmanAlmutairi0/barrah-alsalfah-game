@@ -5,6 +5,7 @@ import WaitingRoom from "../components/waitingRoom";
 import { PlayersProvider } from "@/context/playersContext";
 import { usePlayerInfo } from "@/hooks/usePlayerInfo";
 import { useRouter } from "next/navigation";
+import { useLeaveRoomOnUnload } from "@/hooks/useLeaveRoomOnUnload";
 
 type Props = {
   roomKey: string;
@@ -13,12 +14,13 @@ type Props = {
 export default function RoomClient({ roomKey }: Props) {
   const { playerInfo } = usePlayerInfo();
   const router = useRouter();
+  // useLeaveRoomOnUnload(playerInfo.playerID);
+
 
   useEffect(() => {
-    if(!playerInfo.playerName || playerInfo.roomKey !== roomKey) {
+    if (!playerInfo.playerName || playerInfo.roomKey !== roomKey) {
       router.push("/");
     }
-
   }, [playerInfo.playerName, playerInfo.roomKey]);
 
   return (
