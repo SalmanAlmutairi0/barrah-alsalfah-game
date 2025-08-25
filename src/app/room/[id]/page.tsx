@@ -1,20 +1,13 @@
-import React from "react";
-import WaitingRoom from "../components/waitingRoom";
+// src/app/room/[id]/page.tsx
+
+import RoomClient from "./roomClient";
 
 type PageProps = {
   params: { id: string };
 };
 
-export default async function page({ params }: PageProps) {
-  const { id } = await params;
+export default function Page({ params }: PageProps) {
+  const roomKey = params.id;
 
-  const players = [
-    { id: 1, name: "احمد", isHost: true },
-    { id: 1, name: "احمد", isHost: false },
-  ];
-  return (
-    <div className="">
-        <WaitingRoom players={players} />
-    </div>
-  );
+  return <RoomClient roomKey={roomKey} />;
 }

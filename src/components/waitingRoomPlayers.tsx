@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import {  Users } from "lucide-react";
 import PlayerList from "./playerList";
 
-export default function WaitingRoomPlayers({ players }: { players: { id: number; name: string; isHost: boolean }[] }) {
+export default function WaitingRoomPlayers() {
 
   return (
     <Card className="border-2 border-accent/20 w-full shadow-lg">
@@ -15,7 +15,7 @@ export default function WaitingRoomPlayers({ players }: { players: { id: number;
       </CardHeader>
       <CardContent>
         <div className="grid gap-3">
-          <PlayerList players={players} />
+          <PlayerList />
         </div>
       </CardContent>
     </Card>
