@@ -1,33 +1,49 @@
 "use client";
 
+import { secureStorage } from "@/lib/secureStorage";
 import { useLocalStorage } from "@uidotdev/usehooks";
+import { useEffect, useState } from "react";
 
 export type PlayerInfo = {
   playerID: number;
   playerName: string;
   roomKey: string;
   roomID: number;
-  isHost: boolean; 
+  isHost: boolean;
 };
 
+const STORAGE_KEY = "playerInfo";
+
 export function usePlayerInfo() {
-  const [playerInfo, setPlayerInfo] = useLocalStorage<PlayerInfo>(
-    "playerInfo",
-    {
+  const [playerInfo, setPlayerInfo] = useState<PlayerInfo>({
+    playerID: 0,
+    playerName: "",
+    roomKey: "",
+    roomID: 0,
+    isHost: false,
+  });
+
+  useEffect(() => {
+    const saved = secureStorage.getItem(STORAGE_KEY);
+    if (saved) setPlayerInfo(saved);
+  }, []);
+
+  const savePlayerInfo = (info: PlayerInfo) => {
+    setPlayerInfo(info);
+    secureStorage.setItem(STORAGE_KEY, info);
+  };
+
+  const deletePlayerInfo = () => {
+    const empty: PlayerInfo = {
       playerID: 0,
       playerName: "",
       roomKey: "",
       roomID: 0,
       isHost: false,
-    }
-  );
+    };
 
-  const savePlayerInfo = (info: PlayerInfo) => {
-    setPlayerInfo(info);
-  };
-
-  const deletePlayerInfo = () => {
-    setPlayerInfo({ playerID: 0, playerName: "", roomKey: "", roomID: 0, isHost: false });
+    setPlayerInfo(empty);
+    secureStorage.removeItem(STORAGE_KEY);
   };
 
   return {
