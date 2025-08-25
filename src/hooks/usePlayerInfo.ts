@@ -1,7 +1,6 @@
 "use client";
 
 import { secureStorage } from "@/lib/secureStorage";
-import { useLocalStorage } from "@uidotdev/usehooks";
 import { useEffect, useState } from "react";
 
 export type PlayerInfo = {
