@@ -3,7 +3,7 @@ import { Badge } from "./ui/badge";
 import { Crown } from "lucide-react";
 
 export type PlayerCardProps = {
-  player: { id: number; name: string; isHost: boolean };
+  player: { id: number; name: string; is_host: boolean };
 };
 
 export default function PlayerCard({ player }: PlayerCardProps) {
@@ -19,7 +19,7 @@ export default function PlayerCard({ player }: PlayerCardProps) {
         </div>
       </div>
 
-      {player.isHost && (
+      {player.is_host && (
         <Badge
           variant="secondary"
           className="bg-accent text-accent-foreground flex items-center gap-1"

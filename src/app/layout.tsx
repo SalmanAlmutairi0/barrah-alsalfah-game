@@ -18,7 +18,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" dir="rtl" className="scroll-smooth">
+    <html lang="en" dir="rtl" data-scroll-behavior="smooth">
       <body
         className={`${ibmPlexSansArabic.className} bg-gradient-to-br from-background via-card to-muted min-h-screen `}
       >

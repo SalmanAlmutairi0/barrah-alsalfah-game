@@ -5,16 +5,16 @@ type PageProps = {
   params: { id: string };
 };
 
-export default function page({ params }: PageProps) {
-    const { id } = params;
+export default async function page({ params }: PageProps) {
+  const { id } = await params;
 
-      const players = [
-        { id: 1, name: "احمد", isHost: true },
-        { id: 1, name: "احمد", isHost: false },
-      ];
+  const players = [
+    { id: 1, name: "احمد", isHost: true },
+    { id: 1, name: "احمد", isHost: false },
+  ];
   return (
     <div className="">
-      <WaitingRoom players={players} />
+        <WaitingRoom players={players} />
     </div>
   );
 }

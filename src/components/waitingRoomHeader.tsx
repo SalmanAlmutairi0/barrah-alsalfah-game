@@ -1,8 +1,12 @@
+"use client";
 import React from "react";
 import { Card, CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { Users } from "lucide-react";
+import { usePlayerInfo } from "@/hooks/usePlayerInfo";
 
 export default function WaitingRoomHeader() {
+  const { playerInfo } = usePlayerInfo();
+
   return (
     <div className="w-full mx-auto space-y-6">
       <Card className=" border-2 border-primary/20 shadow-lg">
@@ -12,7 +16,7 @@ export default function WaitingRoomHeader() {
               <Users className="w-4 h-4 text-primary-foreground" />
             </div>
             <CardTitle className="text-2xl font-bold">
-              رقم الغرفة 2323
+              رقم الغرفة {playerInfo.roomKey}
             </CardTitle>
           </div>
           <CardDescription> في انتظار الاعبين (2/5)</CardDescription>
