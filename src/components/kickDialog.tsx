@@ -18,15 +18,17 @@ type KickDialogProps = {
   isKickDialogOpen: boolean;
   setIsKickDialogOpen: (value: boolean) => void;
   player: { id: number; name: string; is_host: boolean };
+  setLoading: (value: boolean) => void;
 };
 
 export default function KickDialog({
   isKickDialogOpen,
   setIsKickDialogOpen,
+  setLoading,
   player,
 }: KickDialogProps) {
   const [kickLoading, setKickLoading] = useState(false);
-  const { playerInfo, savePlayerInfo, deletePlayerInfo } = usePlayerInfo();
+  const { playerInfo, savePlayerInfo } = usePlayerInfo();
   const { players } = usePlayers();
 
   const realHostID = players.find((p) => p.is_host)?.id;
@@ -44,6 +46,7 @@ export default function KickDialog({
 
     try {
       setKickLoading(true);
+      setLoading(true);
       const isKicked = await deletePlayer(player.id);
       if (isKicked) {
         console.log(`Player ${player.name} has been kicked.`);
@@ -54,6 +57,7 @@ export default function KickDialog({
       console.error("Error kicking player:", error);
     } finally {
       setKickLoading(false);
+      setLoading(false);
     }
   };
 

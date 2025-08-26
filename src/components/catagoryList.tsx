@@ -40,9 +40,7 @@ export default function CatagoryList() {
     );
   }
 
-  if (error) {
-    return <div className="text-red-500">Error: {error}</div>;
-  }
+
 
   return (
     <div className="w-full border-2 border-primary/20 p-2 rounded-lg shadow-lg bg-gradient-to-br from-background via-card to-muted max-w-4xl mx-auto">
