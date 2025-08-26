@@ -81,3 +81,31 @@ export const joinRoom = async ({ playerName, roomKey }: JoinRoomParams) => {
     throw error;
   }
 };
+
+type ChangeRoomStatusParams = {
+  roomID: number;
+  status:
+    | "waiting_for_players"
+    | "catagory_selection"
+    | "role_assignment"
+    | "round_in_progress"
+    | "round_summary"
+    | "finished";
+};
+
+export const chnageRoomStatus = async ({
+  roomID,
+  status,
+}: ChangeRoomStatusParams) => {
+  const { error } = await supabase
+    .from("rooms")
+    .update({ status })
+    .eq("id", roomID);
+
+  if (!error) return true;
+
+  if (error) {
+    console.error("Error updating room status:", error);
+    throw error;
+  }
+};

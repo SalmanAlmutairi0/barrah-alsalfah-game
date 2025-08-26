@@ -6,6 +6,9 @@ import { PlayersProvider } from "@/context/playersContext";
 import { usePlayerInfo } from "@/hooks/usePlayerInfo";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
+import { RoomsProvider } from "@/context/roomContext";
+import CatagorySelection from "../components/catagorySelection";
+import { useRoom } from "@/hooks/useRoom";
 
 type Props = {
   roomKey: string;
@@ -56,8 +59,23 @@ export default function RoomClient({ roomKey }: Props) {
   ]);
 
   return (
-    <PlayersProvider roomID={playerInfo.roomID || 0}>
-      <WaitingRoom />
-    </PlayersProvider>
+    <RoomsProvider roomID={playerInfo.roomID || 0}>
+      <PlayersProvider roomID={playerInfo.roomID || 0}>
+        <RenderRoomByStatus />
+      </PlayersProvider>
+    </RoomsProvider>
   );
 }
+
+const RenderRoomByStatus = () => {
+  const { room } = useRoom();
+  switch (room?.status) {
+    case "waiting_for_players":
+      return <WaitingRoom />;
+    case "catagory_selection":
+      return <CatagorySelection />;
+    default:
+      return <div>Unknown status</div>;
+  }
+};
+
