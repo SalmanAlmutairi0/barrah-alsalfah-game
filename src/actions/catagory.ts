@@ -1,27 +1,43 @@
-"use server"
+"use server";
 
 import { supabase } from "@/lib/supabaseClient";
 
 export type Category = {
-    id: number;
-    name: string;
-    icon: string;
-    words: { id: number; word: string }[];
-}
+  id: number;
+  name: string;
+  icon: string;
+  words: { id: number; word: string }[];
+};
 
-export const getCategories = async ():Promise<Category[] | []> => {
+export const getCategories = async (): Promise<Category[] | []> => {
+  const { data, error } = await supabase
+    .from("categories")
+    .select("id, name, icon, words(id, word)")
+    .order("id", { ascending: false });
 
-    const { data, error } = await supabase
-      .from("categories")
-      .select("id, name, icon, words(id, word)")
-      .order("id", { ascending: false });
+  if (error) {
+    console.error("Error fetching categories:", error);
+    return [];
+  }
 
+  return data as Category[];
+};
 
-    if (error) {
-        console.error("Error fetching categories:", error);
-        return [];
-    }
+export const updateSelectedCategory = async (
+  roomID: number,
+  categoryID: number
+) => {
+  const { data, error } = await supabase
+    .from("rooms")
+    .update({ selected_catagory: categoryID })
+    .eq("id", roomID)
+    .select("selected_catagory")
+    .single();
 
-    return data as Category[];
-  
+  if (error) {
+    console.error("Error updating selected category:", error);
+    throw new Error("Failed to update selected category.");
+  }
+
+  return data;
 };

@@ -15,8 +15,8 @@ export type Room = {
   id: number;
   room_key: string;
   status: RoomStatus;
-  host_id: string;
-  selected_catagory: string | null;
+  host_id: number;
+  selected_catagory: number | null;
   round: number;
 };
 

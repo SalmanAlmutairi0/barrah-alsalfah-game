@@ -1,20 +1,17 @@
 "use client";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Card,
-  CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { ArrowLeft } from "lucide-react";
-import { useRoom } from "@/hooks/useRoom";
 import React from "react";
 import CatagoryList from "@/components/catagoryList";
+import { usePlayerInfo } from "@/hooks/usePlayerInfo";
 
 export default function CatagorySelection() {
-  const { loading, room } = useRoom();
+  const { playerInfo } = usePlayerInfo();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-card to-muted p-4">
@@ -32,11 +29,13 @@ export default function CatagorySelection() {
 
         <CatagoryList />
 
-        <div className="flex justify-center">
-          <Button className="max-w-2xl w-full cursor-pointer h-12 text-lg font-bold bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 transition-all duration-200 transform hover:scale-105 disabled:transform-none">
-            بدء اللعبة
-          </Button>
-        </div>
+        {playerInfo.isHost && (
+          <div className="flex justify-center">
+            <Button className="max-w-2xl w-full cursor-pointer h-12 text-lg font-bold bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 transition-all duration-200 transform hover:scale-105 disabled:transform-none">
+              بدء اللعبة
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   );

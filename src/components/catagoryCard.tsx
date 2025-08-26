@@ -1,21 +1,65 @@
-import React from "react";
+"use client";
+import React, { useState } from "react";
 import { Card, CardContent } from "./ui/card";
 import { Badge } from "./ui/badge";
-import { Category } from "@/actions/catagory";
+import { Category, updateSelectedCategory } from "@/actions/catagory";
+import { useRoom } from "@/hooks/useRoom";
+import { usePlayerInfo } from "@/hooks/usePlayerInfo";
 
 type Props = {
   category: Category;
+  selectedCategory: number | null;
+  setSelectedCategory: (id: number) => void;
 };
 
-export default function CatagoryCard({ category }: Props) {
-  const handleCategorySelect = (key: number) => {
-    console.log("Selected category:", key);
-    // later: update room category in Supabase here
+export default function CatagoryCard({
+  category,
+  selectedCategory,
+  setSelectedCategory,
+}: Props) {
+  const { room } = useRoom();
+  const { playerInfo } = usePlayerInfo();
+
+  const handleCategorySelect = async (categoryID: number) => {
+    if (!playerInfo.isHost) {
+      console.log("Only the host can select a category");
+      return;
+    }
+
+    // if the category is already selected, do nothing
+    if (room?.selected_catagory == categoryID) {
+      console.log("Category already selected:", categoryID);
+      return;
+    }
+
+    try {
+      if (room?.id !== undefined) {
+        const selectedCategoryID = await updateSelectedCategory(
+          room.id,
+          categoryID
+        );
+        setSelectedCategory(selectedCategoryID.selected_catagory);
+      } else {
+        console.error("Room ID is undefined. Cannot update category.");
+      }
+    } catch (error) {
+      console.error("Error selecting category:", error);
+      throw new Error("Failed to select category.");
+    }
   };
+
   return (
     <Card
-      className="border-2 border-muted hover:border-primary/50 transition-all duration-200 cursor-pointer transform hover:scale-105 hover:shadow-lg"
       onClick={() => handleCategorySelect(category.id)}
+      className={`border-2 border-muted transition-all duration-200  transform ${
+        playerInfo.isHost
+          ? "hover:scale-105 hover:shadow-lg hover:border-primary/50 cursor-pointer"
+          : ""
+      } ${
+        room?.selected_catagory == category.id
+          ? "border-primary hover:scale-100 hover:border-primary/100"
+          : ""
+      }`}
     >
       <CardContent className="p-6 text-center space-y-4">
         <div className="text-4xl">{category.icon}</div>
