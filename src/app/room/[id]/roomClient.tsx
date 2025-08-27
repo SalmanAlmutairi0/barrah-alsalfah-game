@@ -11,6 +11,7 @@ import CatagorySelection from "../components/catagorySelection";
 import { useRoom } from "@/hooks/useRoom";
 import { Loader2 } from "lucide-react";
 import RoleAssignment from "../components/roleAssignment";
+import RoundInProgress from "../components/roundInProgress";
 
 type Props = {
   roomKey: string;
@@ -86,6 +87,8 @@ const RenderRoomByStatus = () => {
       return <CatagorySelection />;
     case "role_assignment":
       return <RoleAssignment />;
+    case "round_in_progress":
+      return <RoundInProgress />;
     // default:
     //   return <div>Unknown status</div>;
   }

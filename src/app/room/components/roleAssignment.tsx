@@ -45,7 +45,7 @@ export default function RoleAssignment() {
       </div>
     );
   }
-  
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-card to-muted flex items-center justify-center p-4">
       <Card className="w-full max-w-lg shadow-xl border-2 border-primary/20">

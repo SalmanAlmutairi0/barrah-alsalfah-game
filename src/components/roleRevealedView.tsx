@@ -1,6 +1,12 @@
-import { ArrowRight, Eye, EyeOff } from "lucide-react";
+"use client";
+
+import { ArrowRight, Eye, EyeOff, Loader2 } from "lucide-react";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
+import { usePlayerInfo } from "@/hooks/usePlayerInfo";
+import { chnageRoomStatus } from "@/actions/rooms";
+import { toast } from "sonner";
+import { useState } from "react";
 
 export default function RoleRevealedView({
   isImposter,
@@ -11,6 +17,26 @@ export default function RoleRevealedView({
   secretWord: string;
   isHost: boolean;
 }) {
+  const { playerInfo } = usePlayerInfo();
+  const [loading, setLoading] = useState(false);
+
+  const handleStartGame = async () => {
+    if (!playerInfo.roomID) return;
+
+    try {
+      setLoading(true);
+      await chnageRoomStatus({
+        roomID: playerInfo.roomID,
+        status: "round_in_progress",
+      });
+    } catch (error) {
+      console.log(error);
+      toast.error("حدث خطأ أثناء بدء اللعبة");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="text-center space-y-6 animate-in fade-in duration-500">
       {/* Circle icon */}
@@ -78,9 +104,19 @@ export default function RoleRevealedView({
             </p>
           </div>
 
-          <Button className="w-full h-12 text-lg font-semibold bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 transition-all duration-200">
-            <ArrowRight className="w-5 h-5 ml-2" />
-            الاستمرار إلى اللعبة
+          <Button
+            onClick={handleStartGame}
+            disabled={loading}
+            className="w-full h-12 text-lg font-semibold bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 transition-all duration-200"
+          >
+            {loading ? (
+              <Loader2 className="w-5 h-5 ml-2 animate-spin" />
+            ) : (
+              <>
+                <ArrowRight className="w-5 h-5 ml-2" />
+                الاستمرار إلى اللعبة
+              </>
+            )}
           </Button>
         </>
       )}
