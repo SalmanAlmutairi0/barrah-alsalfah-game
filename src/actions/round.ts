@@ -13,8 +13,6 @@ export const startRound = async ({
   secret_word,
   room_id,
 }: RoundProps) => {
-
-
   const { data, error } = await supabase
     .from("rounds")
     .insert({
@@ -28,6 +26,25 @@ export const startRound = async ({
   if (error) {
     console.error("Error starting round:", error);
     throw new Error("Could not start the round");
+  }
+
+  return data;
+};
+
+
+
+export const getRoundInfo = async (room_id: number) => {
+  const { data, error } = await supabase
+    .from("rounds")
+    .select("id, imposter_id, secret_word")
+    .eq("room_id", room_id)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .single();
+
+  if (error) {
+    console.error("Error fetching round info:", error);
+    throw new Error("Could not fetch round info");
   }
 
   return data;
