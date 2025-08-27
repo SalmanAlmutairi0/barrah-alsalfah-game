@@ -115,15 +115,14 @@ export default function Home() {
     } catch (error) {
       console.error("Failed to join room:", error);
       setJoinRoomError("Something went wrong joining the room.");
-       toast.error("حدث خطاء", {
-         description: "حصل خطأ اثناء دخول الغرفة الغرفة. حاول مرة أخرى.",
-         action: {
-           label: "إغلاق",
-           onClick: () => toast.dismiss(),
-         },
-         duration: 5000,
-       });
-
+      toast.error("حدث خطاء", {
+        description: "حصل خطأ اثناء دخول الغرفة الغرفة. حاول مرة أخرى.",
+        action: {
+          label: "إغلاق",
+          onClick: () => toast.dismiss(),
+        },
+        duration: 5000,
+      });
     } finally {
       setLoading(false);
     }
@@ -137,10 +136,10 @@ export default function Home() {
             <Users className="w-8 h-8 text-primary-foreground" />
           </div>
           <CardTitle className="text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-            برى السالفة
+            برا السالفة
           </CardTitle>
           <CardDescription className="text-lg">
-            لعبة برى السالفة اونلاين
+            لعبة برا السالفة اونلاين
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">

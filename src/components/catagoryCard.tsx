@@ -79,7 +79,6 @@ export default function CatagoryCard({
     }
   }, [playerInfo.roomID]);
 
-  console.log(" local storage", playerInfo);
 
   return (
     <Card
@@ -100,7 +99,7 @@ export default function CatagoryCard({
         <div>
           <h3 className="text-xl font-bold text-foreground">{category.name}</h3>
           <p className="text-sm text-muted-foreground mt-2">
-            {category.words.length} كلمات متاحة
+            {category.words.length} كلمة متاحة
           </p>
         </div>
 

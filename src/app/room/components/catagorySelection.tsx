@@ -6,12 +6,75 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import React from "react";
+import { useState } from "react";
 import CatagoryList from "@/components/catagoryList";
 import { usePlayerInfo } from "@/hooks/usePlayerInfo";
+import { toast } from "sonner";
+import { useRoom } from "@/hooks/useRoom";
+import { getRandomWord } from "@/actions/words";
+import { usePlayers } from "@/hooks/usePlayers";
+import { startRound } from "@/actions/round";
+import { chnageRoomStatus } from "@/actions/rooms";
+import { Loader2 } from "lucide-react";
 
 export default function CatagorySelection() {
   const { playerInfo } = usePlayerInfo();
+  const { room } = useRoom();
+  const { players } = usePlayers();
+  const [loading, setLoading] = useState(false);
+
+  const handleStartGame = async () => {
+    if (!room?.selected_catagory) {
+      toast.warning("يرجى اختيار تصنيف للعب!", {
+        duration: 4000,
+      });
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      
+      const activePlayers = players.filter((player) => player.is_active);
+      const randomIndex = Math.floor(Math.random() * activePlayers.length);
+      const randomPlayer = activePlayers[randomIndex];
+      
+      const secretWord = await getRandomWord(room.selected_catagory);
+      const imposterID = randomPlayer.id;
+
+      const round = await startRound({
+        room_id: room.id,
+        imposter_id: imposterID,
+        secret_word: secretWord,
+      });
+
+      console.log("Round started:", round);
+
+      if(!round){
+        throw new Error("Could not start the round");
+      }
+
+      await chnageRoomStatus({
+        roomID: room.id,
+        status: "role_assignment",
+      })
+
+
+
+    } catch (error) {
+      console.error("Error starting game:", error);
+      toast.error("حدث خطاء", {
+        description: "حصل خطأ أثناء بدء اللعبة. حاول مرة أخرى.",
+        action: {
+          label: "إغلاق",
+          onClick: () => toast.dismiss(),
+        },
+        duration: 5000,
+      });
+    }finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-card to-muted p-4">
@@ -31,8 +94,12 @@ export default function CatagorySelection() {
 
         {playerInfo.isHost && (
           <div className="flex justify-center">
-            <Button className="max-w-2xl w-full cursor-pointer h-12 text-lg font-bold bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 transition-all duration-200 transform hover:scale-105 disabled:transform-none">
-              بدء اللعبة
+            <Button
+              disabled={loading}
+              onClick={handleStartGame}
+              className="max-w-2xl w-full cursor-pointer h-12 text-lg font-bold bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 transition-all duration-200 transform hover:scale-105 disabled:transform-none"
+            >
+               { loading ? <Loader2 className="ml-2 h-5 w-5 animate-spin" /> : "بدء اللعبة"}
             </Button>
           </div>
         )}

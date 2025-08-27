@@ -37,7 +37,7 @@ export default function RoleRevealedView({
             : "bg-primary text-primary-foreground"
         }`}
       >
-        {isImposter ? "برى السالفة" : "داخل السالفة"}
+        {isImposter ? "برا السالفة" : "داخل السالفة"}
       </Badge>
 
       {/* Instructions */}
@@ -57,7 +57,7 @@ export default function RoleRevealedView({
               {secretWord}
             </p>
             <p className="text-sm text-muted-foreground">
-              ناقش هذه الكلمة مع الآخرين بدون ماتوضح. وحاول تكشف مين برى السالفة
+              ناقش هذه الكلمة مع الآخرين بدون ماتوضح. وحاول تكشف مين برا السالفة
               بينهم!
             </p>
           </>
@@ -79,8 +79,8 @@ export default function RoleRevealedView({
           </div>
 
           <Button className="w-full h-12 text-lg font-semibold bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 transition-all duration-200">
-            الاستمرار إلى اللعبة
             <ArrowRight className="w-5 h-5 ml-2" />
+            الاستمرار إلى اللعبة
           </Button>
         </>
       )}

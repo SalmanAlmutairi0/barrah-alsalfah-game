@@ -13,7 +13,7 @@ import { usePlayerInfo } from "@/hooks/usePlayerInfo";
 
 export default function RoleAssignment() {
   const [roleRevealed, setRoleRevealed] = useState(false);
-  const [isImposter] = useState(true);
+  const [isImposter] = useState(false);
   const { playerInfo } = usePlayerInfo();
 
   const secretWord = "موز";
