@@ -8,7 +8,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { ArrowLeft } from "lucide-react";
 import { useRoom } from "@/hooks/useRoom";
 import React from "react";
 import CatagoryList from "@/components/catagoryList";
