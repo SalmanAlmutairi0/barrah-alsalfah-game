@@ -5,9 +5,10 @@ import PlayerCard from "./playerCard";
 import { usePlayers } from "@/hooks/usePlayers";
 import PlayerCardSkeleton from "./playerCardSkeleton";
 import { Plus } from "lucide-react";
+import { toast } from "sonner";
 
 export default function PlayerList() {
-  const { players, playersLoading } = usePlayers();
+  const { players, playersLoading, error } = usePlayers();
 
   if (playersLoading) {
     return (
@@ -17,6 +18,17 @@ export default function PlayerList() {
         ))}
       </div>
     );
+  }
+
+  if( error ) {
+    return toast.error("حدث خطاء", {
+      description: "حصل خطأ أثناء جلب الاعبين. حاول مرة أخرى.",
+      action: {
+        label: "إغلاق",
+        onClick: () => toast.dismiss(),
+      },
+      duration: 5000,
+    });
   }
 
   return (

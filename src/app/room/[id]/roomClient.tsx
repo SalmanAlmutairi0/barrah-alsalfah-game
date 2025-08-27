@@ -9,6 +9,7 @@ import { supabase } from "@/lib/supabaseClient";
 import { RoomsProvider } from "@/context/roomContext";
 import CatagorySelection from "../components/catagorySelection";
 import { useRoom } from "@/hooks/useRoom";
+import { Loader2 } from "lucide-react";
 
 type Props = {
   roomKey: string;
@@ -69,14 +70,20 @@ export default function RoomClient({ roomKey }: Props) {
 }
 
 const RenderRoomByStatus = () => {
-  const { room } = useRoom();
+  const { room, loading } = useRoom();
+  if (loading)
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <Loader2 className="animate-spin size-14 " />
+      </div>
+    );
+
   switch (room?.status) {
     case "waiting_for_players":
       return <WaitingRoom />;
     case "catagory_selection":
       return <CatagorySelection />;
-    default:
-      return <div>Unknown status</div>;
+    // default:
+    //   return <div>Unknown status</div>;
   }
 };
-

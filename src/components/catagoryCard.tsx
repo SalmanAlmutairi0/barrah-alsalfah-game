@@ -1,11 +1,12 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Card, CardContent } from "./ui/card";
 import { Badge } from "./ui/badge";
 import { Category, updateSelectedCategory } from "@/actions/catagory";
 import { useRoom } from "@/hooks/useRoom";
 import { usePlayerInfo } from "@/hooks/usePlayerInfo";
 import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 type Props = {
   category: Category;
@@ -19,7 +20,7 @@ export default function CatagoryCard({
   setSelectedCategory,
 }: Props) {
   const { room } = useRoom();
-  const { playerInfo } = usePlayerInfo();
+  const { playerInfo, savePlayerInfo } = usePlayerInfo();
   const [loading, setLoading] = useState(false);
 
   const handleCategorySelect = async (categoryID: number) => {
@@ -31,6 +32,13 @@ export default function CatagoryCard({
     // if the category is already selected, do nothing
     if (room?.selected_catagory == categoryID) {
       console.log("Category already selected:", categoryID);
+      toast.info("التصنيف محدد بالفعل", {
+        action: {
+          label: "إغلاق",
+          onClick: () => toast.dismiss(),
+        },
+        duration: 3000,
+      });
       return;
     }
 
@@ -43,16 +51,35 @@ export default function CatagoryCard({
           categoryID
         );
         setSelectedCategory(selectedCategoryID.selected_catagory);
+        savePlayerInfo({
+          ...playerInfo,
+          selectedCatagory: selectedCategoryID.selected_catagory,
+        });
       } else {
         console.error("Room ID is undefined. Cannot update category.");
       }
     } catch (error) {
       console.error("Error selecting category:", error);
-      throw new Error("Failed to select category.");
-    }finally {
+      toast.error("حدث خطاء", {
+        description: "حصل خطأ أثناء تحديث التصنيف. حاول مرة أخرى.",
+        action: {
+          label: "إغلاق",
+          onClick: () => toast.dismiss(),
+        },
+        duration: 5000,
+      });
+    } finally {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (!playerInfo.roomID) {
+      return;
+    }
+  }, [playerInfo.roomID]);
+
+  console.log(" local storage", playerInfo);
 
   return (
     <Card
@@ -69,7 +96,6 @@ export default function CatagoryCard({
       }`}
     >
       <CardContent className="p-6 text-center space-y-4 relative">
-      
         <div className="text-4xl">{category.icon}</div>
         <div>
           <h3 className="text-xl font-bold text-foreground">{category.name}</h3>
@@ -91,7 +117,6 @@ export default function CatagoryCard({
             </Badge>
           )}
         </div>
-
 
         {loading && (
           <div className="absolute inset-0 bg-primary/30 flex items-center justify-center rounded-lg p-1 ">

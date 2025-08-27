@@ -14,6 +14,7 @@ import { usePlayerInfo } from "@/hooks/usePlayerInfo";
 import { Loader2, LogIn, Plus, Users } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 export default function Home() {
   const { savePlayerInfo, deletePlayerInfo } = usePlayerInfo();
@@ -78,6 +79,15 @@ export default function Home() {
     } catch (err) {
       console.error("Failed to create room:", err);
       setCreateRoomError("Something went wrong creating the room.");
+
+      toast.error("حدث خطاء", {
+        description: "حصل خطأ أثناءانشاء الغرفة. حاول مرة أخرى.",
+        action: {
+          label: "إغلاق",
+          onClick: () => toast.dismiss(),
+        },
+        duration: 5000,
+      });
     } finally {
       setLoading(false);
     }
@@ -105,6 +115,15 @@ export default function Home() {
     } catch (error) {
       console.error("Failed to join room:", error);
       setJoinRoomError("Something went wrong joining the room.");
+       toast.error("حدث خطاء", {
+         description: "حصل خطأ اثناء دخول الغرفة الغرفة. حاول مرة أخرى.",
+         action: {
+           label: "إغلاق",
+           onClick: () => toast.dismiss(),
+         },
+         duration: 5000,
+       });
+
     } finally {
       setLoading(false);
     }

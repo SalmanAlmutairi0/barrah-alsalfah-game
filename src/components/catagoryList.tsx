@@ -3,11 +3,11 @@ import { useEffect, useState } from "react";
 import CatagoryCard from "./catagoryCard";
 import { Category, getCategories } from "@/actions/catagory";
 import CategoryCardSkeleton from "./catagoryCardSkeleton";
+import { toast } from "sonner";
 
 export default function CatagoryList() {
   const [loading, setLoading] = useState(true);
   const [categories, setCategories] = useState<any[]>([]);
-  const [error, setError] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
 
   useEffect(() => {
@@ -21,7 +21,14 @@ export default function CatagoryList() {
         setCategories(data);
       } catch (error) {
         console.error("Error fetching categories:", error);
-        setError("Failed to load categories.");
+        toast.error("حدث خطاء", {
+          description: "حصل خطأ أثناء جلب التصنيفات. حاول مرة أخرى.",
+          action: {
+            label: "إغلاق",
+            onClick: () => toast.dismiss(),
+          },
+          duration: 5000,
+        });
       } finally {
         setLoading(false);
       }

@@ -13,6 +13,7 @@ import { usePlayerInfo } from "@/hooks/usePlayerInfo";
 import { usePlayers } from "@/hooks/usePlayers";
 import { Loader2 } from "lucide-react";
 import { useState } from "react";
+import { toast } from "sonner";
 
 type KickDialogProps = {
   isKickDialogOpen: boolean;
@@ -49,12 +50,27 @@ export default function KickDialog({
       setLoading(true);
       const isKicked = await deletePlayer(player.id);
       if (isKicked) {
-        console.log(`Player ${player.name} has been kicked.`);
+        toast.success("تم طرد الاعب", {
+          description: `تم طرد الاعب ${player.name} بنجاح.`,
+          action: {
+            label: "إغلاق",
+            onClick: () => toast.dismiss(),
+          },
+          duration: 5000,
+        });
       } else {
         console.error(`Failed to kick player ${player.name}.`);
       }
     } catch (error) {
       console.error("Error kicking player:", error);
+      toast.error("حدث خطاء", {
+        description: `حصل خطأ أثناء طرد الاعب ${player.name}. حاول مرة أخرى.`,
+        action: {
+          label: "إغلاق",
+          onClick: () => toast.dismiss(),
+        },
+        duration: 5000,
+      });
     } finally {
       setKickLoading(false);
       setLoading(false);

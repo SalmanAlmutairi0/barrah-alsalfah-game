@@ -9,6 +9,7 @@ export type PlayerInfo = {
   roomKey: string;
   roomID: number;
   isHost: boolean;
+  selectedCatagory?: number;  
 };
 
 const STORAGE_KEY = "playerInfo";
@@ -20,6 +21,7 @@ export function usePlayerInfo() {
     roomKey: "",
     roomID: 0,
     isHost: false,
+    selectedCatagory: undefined,
   });
 
   useEffect(() => {
@@ -39,6 +41,7 @@ export function usePlayerInfo() {
       roomKey: "",
       roomID: 0,
       isHost: false,
+      selectedCatagory: undefined,
     };
 
     setPlayerInfo(empty);
