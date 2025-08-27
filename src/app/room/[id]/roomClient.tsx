@@ -53,9 +53,9 @@ export default function RoomClient({ roomKey }: Props) {
       supabase.removeChannel(channel);
     };
   }, [
-    playerInfo?.playerID,
-    playerInfo?.playerName,
-    playerInfo?.roomKey,
+    playerInfo.playerID,
+    playerInfo.playerName,
+    playerInfo.roomKey,
     roomKey,
     router,
     deletePlayerInfo,

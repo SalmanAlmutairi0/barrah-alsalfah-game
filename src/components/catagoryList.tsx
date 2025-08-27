@@ -7,16 +7,13 @@ import { toast } from "sonner";
 
 export default function CatagoryList() {
   const [loading, setLoading] = useState(true);
-  const [categories, setCategories] = useState<any[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
 
   useEffect(() => {
-    const categories = async () => {
-      console.log("getting the categories");
-
+    const fetchCategories = async () => {
       try {
         setLoading(true);
-
         const data = await getCategories();
         setCategories(data);
       } catch (error) {
@@ -34,7 +31,7 @@ export default function CatagoryList() {
       }
     };
 
-    categories();
+    fetchCategories();
   }, []);
 
   if (loading) {
@@ -47,12 +44,10 @@ export default function CatagoryList() {
     );
   }
 
-
-
   return (
     <div className="w-full border-2 border-primary/20 p-2 rounded-lg shadow-lg bg-gradient-to-br from-background via-card to-muted max-w-4xl mx-auto">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {categories.map((category: Category) => (
+        {categories.map((category) => (
           <CatagoryCard
             key={category.id}
             category={category}

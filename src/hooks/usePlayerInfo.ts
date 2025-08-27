@@ -1,7 +1,7 @@
 "use client";
 
 import { secureStorage } from "@/lib/secureStorage";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 
 export type PlayerInfo = {
   playerID: number;
@@ -9,7 +9,7 @@ export type PlayerInfo = {
   roomKey: string;
   roomID: number;
   isHost: boolean;
-  selectedCatagory?: number;  
+  selectedCatagory?: number;
 };
 
 const STORAGE_KEY = "playerInfo";
@@ -29,12 +29,12 @@ export function usePlayerInfo() {
     if (saved) setPlayerInfo(saved);
   }, []);
 
-  const savePlayerInfo = (info: PlayerInfo) => {
+  const savePlayerInfo = useCallback((info: PlayerInfo) => {
     setPlayerInfo(info);
     secureStorage.setItem(STORAGE_KEY, info);
-  };
+  }, []);
 
-  const deletePlayerInfo = () => {
+  const deletePlayerInfo = useCallback(() => {
     const empty: PlayerInfo = {
       playerID: 0,
       playerName: "",
@@ -46,7 +46,7 @@ export function usePlayerInfo() {
 
     setPlayerInfo(empty);
     secureStorage.removeItem(STORAGE_KEY);
-  };
+  }, []);
 
   return {
     playerInfo,

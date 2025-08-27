@@ -73,13 +73,6 @@ export default function CatagoryCard({
     }
   };
 
-  useEffect(() => {
-    if (!playerInfo.roomID) {
-      return;
-    }
-  }, [playerInfo.roomID]);
-
-
   return (
     <Card
       onClick={() => handleCategorySelect(category.id)}

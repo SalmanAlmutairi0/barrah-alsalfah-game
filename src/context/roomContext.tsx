@@ -41,6 +41,7 @@ export function RoomsProvider({
 
   // initial fetch
   useEffect(() => {
+    if (!roomID) return;
     const fetchRoom = async () => {
       setLoading(true);
       const { data, error } = await supabase
@@ -54,10 +55,12 @@ export function RoomsProvider({
     };
 
     fetchRoom();
-  }, [roomID, supabase]);
+  }, [roomID]);
 
   // realtime updates
   useEffect(() => {
+    if (!roomID) return;
+
     const channel = supabase
       .channel(`room-${roomID}`)
       .on(
@@ -77,7 +80,7 @@ export function RoomsProvider({
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [roomID, supabase]);
+  }, [roomID]);
 
   return (
     <RoomsContext.Provider value={{ room, loading }}>
