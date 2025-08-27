@@ -10,6 +10,7 @@ import { RoomsProvider } from "@/context/roomContext";
 import CatagorySelection from "../components/catagorySelection";
 import { useRoom } from "@/hooks/useRoom";
 import { Loader2 } from "lucide-react";
+import RoleAssignment from "../components/roleAssignment";
 
 type Props = {
   roomKey: string;
@@ -62,8 +63,8 @@ export default function RoomClient({ roomKey }: Props) {
   return (
     <RoomsProvider roomID={playerInfo.roomID || 0}>
       <PlayersProvider roomID={playerInfo.roomID || 0}>
-        <RenderRoomByStatus />
-        {/* <CatagorySelection />; */}
+        {/* <RenderRoomByStatus /> */}
+        <RoleAssignment />
       </PlayersProvider>
     </RoomsProvider>
   );
@@ -83,6 +84,8 @@ const RenderRoomByStatus = () => {
       return <WaitingRoom />;
     case "catagory_selection":
       return <CatagorySelection />;
+    case "role_assignment":
+      return <RoleAssignment />;
     // default:
     //   return <div>Unknown status</div>;
   }
