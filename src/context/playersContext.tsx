@@ -14,6 +14,8 @@ export type Player = {
 
 type PlayersContextType = {
   players: Player[];
+  playersLoading: boolean;
+  error?: string | null;
 };
 
 export const PlayersContext = createContext<PlayersContextType | undefined>(
@@ -27,22 +29,34 @@ type PlayersProviderProps = {
 
 export const PlayersProvider = ({ roomID, children }: PlayersProviderProps) => {
   const [players, setPlayers] = useState<Player[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  const [playersLoading, setPlayersLoading] = useState<boolean>(false);
 
   useEffect(() => {
     if (!roomID) return;
 
     // Fetch initial players for the room
     const fetchPlayers = async () => {
-      const { data, error } = await supabase
-        .from("players")
-        .select("*")
-        .eq("room_id", roomID)
-        .eq("is_active", true);
+      setPlayersLoading(true);
+      setError(null);
+      try {
+        const { data, error } = await supabase
+          .from("players")
+          .select("*")
+          .eq("room_id", roomID)
+          .eq("is_active", true);
 
-      if (error) {
-        console.error("Failed to fetch players:", error);
-      } else {
-        setPlayers(data || []);
+        if (error) {
+          console.error("Failed to fetch players:", error);
+          setError("حصل خطأ أثناء جلب الاعبين.");
+        } else {
+          setPlayers(data || []);
+        }
+      } catch (error) {
+        console.error("Unexpected error:", error);
+        setError("حصل خطأ أثناء جلب الاعبين.");
+      } finally {
+        setPlayersLoading(false);
       }
     };
 
@@ -94,7 +108,7 @@ export const PlayersProvider = ({ roomID, children }: PlayersProviderProps) => {
   }, [roomID]);
 
   return (
-    <PlayersContext.Provider value={{ players }}>
+    <PlayersContext.Provider value={{ players, playersLoading, error }}>
       {children}
     </PlayersContext.Provider>
   );

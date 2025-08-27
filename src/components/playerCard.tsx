@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { Badge } from "./ui/badge";
-import { Crown } from "lucide-react";
+import { Crown, Loader2 } from "lucide-react";
 import { Button } from "./ui/button";
 import KickDialog from "./kickDialog";
 import { usePlayerInfo } from "@/hooks/usePlayerInfo";
@@ -10,11 +10,11 @@ export type PlayerCardProps = {
   player: { id: number; name: string; is_host: boolean };
 };
 
-export default function PlayerCard({
-  player,
-}: PlayerCardProps) {
+export default function PlayerCard({ player }: PlayerCardProps) {
   const [isKickDialogOpen, setIsKickDialogOpen] = useState(false);
-  const {playerInfo}= usePlayerInfo();
+  const { playerInfo } = usePlayerInfo();
+  const [loading, setLoading] = useState(false);
+
   const currnetPlayerIsHost = playerInfo.isHost || false;
 
   const handleKickPlayer = () => {
@@ -50,7 +50,7 @@ export default function PlayerCard({
             !currnetPlayerIsHost ? "hidden" : ""
           }`}
         >
-          طرد
+          {loading ? <Loader2 className="animate-spin h-4 w-4" /> : "طرد"}
         </Button>
       )}
 
@@ -59,6 +59,7 @@ export default function PlayerCard({
           isKickDialogOpen={isKickDialogOpen}
           setIsKickDialogOpen={setIsKickDialogOpen}
           player={player}
+          setLoading={setLoading}
         />
       )}
     </div>

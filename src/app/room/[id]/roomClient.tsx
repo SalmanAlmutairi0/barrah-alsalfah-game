@@ -62,6 +62,7 @@ export default function RoomClient({ roomKey }: Props) {
     <RoomsProvider roomID={playerInfo.roomID || 0}>
       <PlayersProvider roomID={playerInfo.roomID || 0}>
         <RenderRoomByStatus />
+        {/* <CatagorySelection />; */}
       </PlayersProvider>
     </RoomsProvider>
   );

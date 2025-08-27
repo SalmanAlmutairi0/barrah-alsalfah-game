@@ -19,7 +19,7 @@ export default function WaitingRoomHeader() {
               رقم الغرفة <p>{playerInfo.roomKey}</p>
             </CardTitle>
           </div>
-          <CardDescription> في انتظار الاعبين (2/5)</CardDescription>
+          <CardDescription className="text-md"> في انتظار الاعبين </CardDescription>
         </CardHeader>
       </Card>
     </div>
