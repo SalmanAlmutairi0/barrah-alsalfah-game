@@ -47,7 +47,6 @@ export default function CatagorySelection() {
         secret_word: secretWord,
       });
 
-      console.log("Round started:", round);
 
       if (!round) {
         throw new Error("Could not start the round");
