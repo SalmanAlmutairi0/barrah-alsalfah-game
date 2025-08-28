@@ -9,30 +9,29 @@ import { ChatMessage } from "./chat/types";
 
 // Dummy game state
 const currentPlayerId = 1;
-const timeLeft = 60;
 
 const initialMessages: ChatMessage[] = [
-  {
-    id: 1,
-    playerId: 2,
-    playerName: "علي",
-    message: "أنا أحب الموز لأنه سهل الأكل!",
-    timestamp: new Date(),
-  },
-  {
-    id: 2,
-    playerId: 3,
-    playerName: "سارة",
-    message: "التفاح هو المفضل لدي، منعش ومقرمش.",
-    timestamp: new Date(),
-  },
-  {
-    id: 3,
-    playerId: 1,
-    playerName: "أنت",
-    message: "المانجو هو الأفضل، حلو ولذيذ!",
-    timestamp: new Date(),
-  },
+  // {
+  //   id: 1,
+  //   playerId: 2,
+  //   playerName: "علي",
+  //   message: "أنا أحب الموز لأنه سهل الأكل!",
+  //   timestamp: new Date(),
+  // },
+  // {
+  //   id: 2,
+  //   playerId: 3,
+  //   playerName: "سارة",
+  //   message: "التفاح هو المفضل لدي، منعش ومقرمش.",
+  //   timestamp: new Date(),
+  // },
+  // {
+  //   id: 3,
+  //   playerId: 1,
+  //   playerName: "أنت",
+  //   message: "المانجو هو الأفضل، حلو ولذيذ!",
+  //   timestamp: new Date(),
+  // },
 ];
 
 export default function DiscussionChat() {
@@ -40,9 +39,7 @@ export default function DiscussionChat() {
     useState<ChatMessage[]>(initialMessages);
   const [newMessage, setNewMessage] = useState("");
 
-  const setGameMode = (mode: string) => {
-    console.log("Switching to mode:", mode);
-  };
+  
 
   const handleSendMessage = () => {
     if (!newMessage.trim()) return;
@@ -62,10 +59,7 @@ export default function DiscussionChat() {
   return (
     <Card className="border-2 border-primary/20 shadow-lg w-full flex-1 flex flex-col min-w-0 max-h-[70vh] md:max-h-[600px] overflow-hidden">
       <CardHeader>
-        <ChatHeader
-          onStartVoting={() => setGameMode("voting")}
-          canStartVoting={timeLeft <= 0}
-        />
+        <ChatHeader />
       </CardHeader>
 
       <CardContent className="flex-1 flex flex-col min-h-0 overflow-hidden">
