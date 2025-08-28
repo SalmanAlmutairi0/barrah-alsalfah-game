@@ -6,6 +6,8 @@ import ChatHeader from "./chat/ChatHeader";
 import ChatMessages from "./chat/ChatMessages";
 import ChatInput from "./chat/ChatInput";
 import { ChatMessage } from "./chat/types";
+import { useMessages } from "@/hooks/useMessages";
+import { usePlayerInfo } from "@/hooks/usePlayerInfo";
 
 // Dummy game state
 const currentPlayerId = 1;
@@ -35,24 +37,18 @@ const initialMessages: ChatMessage[] = [
 ];
 
 export default function DiscussionChat() {
-  const [chatMessages, setChatMessages] =
-    useState<ChatMessage[]>(initialMessages);
+  const { messages, sendMessage, messagesLoading } = useMessages();
+  const { playerInfo } = usePlayerInfo();
   const [newMessage, setNewMessage] = useState("");
 
-  
-
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     if (!newMessage.trim()) return;
 
-    const message = {
-      id: chatMessages.length + 1,
-      playerId: currentPlayerId,
-      playerName: "You",
-      message: newMessage.trim(),
-      timestamp: new Date(),
-    };
-
-    setChatMessages((prev) => [...prev, message]);
+    await sendMessage(
+      newMessage.trim(),
+      playerInfo.playerID,
+      playerInfo.playerName
+    );
     setNewMessage("");
   };
 
@@ -64,8 +60,8 @@ export default function DiscussionChat() {
 
       <CardContent className="flex-1 flex flex-col min-h-0 overflow-hidden">
         <ChatMessages
-          messages={chatMessages}
-          currentPlayerId={currentPlayerId}
+          messages={messages}
+          currentPlayerId={playerInfo.playerID}
         />
 
         <Separator className="my-4" />

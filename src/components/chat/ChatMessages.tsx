@@ -43,7 +43,7 @@ export default function ChatMessages({
             <Message
               key={message.id}
               message={message}
-              isCurrentPlayer={message.playerId === currentPlayerId}
+              isCurrentPlayer={message.player_id === currentPlayerId}
             />
           ))
         )}

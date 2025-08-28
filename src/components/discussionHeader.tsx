@@ -4,12 +4,17 @@ import { Separator } from "@/components/ui/separator";
 import { Users, Hash } from "lucide-react";
 import Counter from "./counter";
 import { toast } from "sonner";
+import { usePlayerInfo } from "@/hooks/usePlayerInfo";
+import { useEffect, useState } from "react";
+import { getRoundInfo } from "@/actions/round";
 
-const isImposter = false;
-const secretWord = "Banana";
-const roundNumber = 2;
+
 
 export default function DiscussionHeader() {
+  const { playerInfo } = usePlayerInfo();
+  const [isImposter, setIsImposter] = useState(false);
+  const [secretWord, setSecretWord] = useState("");
+  const [roundNumber, setRoundNumber] = useState(0);
 
   const onCounterFinish = () => {
     toast.info("انتهى الوقت", {
@@ -18,6 +23,24 @@ export default function DiscussionHeader() {
       duration: 4000,
     });
   };
+
+  useEffect(() => {
+    if (!playerInfo.roomID) return;
+
+    const fetchRoundInfo = async () => {
+      try {
+        const round = await getRoundInfo(playerInfo.roomID);
+        setIsImposter(round.imposter_id === playerInfo.playerID);
+        setSecretWord(round.secret_word);
+        setRoundNumber(round.round_number);
+      } catch (error) {
+        console.error("Error fetching round info:", error);
+        toast.error("حدث خطأ ما");
+      }
+    };
+
+    fetchRoundInfo();
+  }, [playerInfo.roomID]);
 
   return (
     <Card className="border-2 border-primary/20 shadow-lg bg-gradient-to-r from-primary/10 to-accent/10">

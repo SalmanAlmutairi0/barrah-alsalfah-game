@@ -17,7 +17,7 @@ export default function Message({ message, isCurrentPlayer }: MessageProps) {
     >
       {!isCurrentPlayer && (
         <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-primary-foreground text-sm font-bold flex-shrink-0">
-          {message.playerName.charAt(0).toUpperCase()}
+          {message.player_name.charAt(0).toUpperCase()}
         </div>
       )}
       <div
@@ -29,7 +29,7 @@ export default function Message({ message, isCurrentPlayer }: MessageProps) {
       >
         {!isCurrentPlayer && (
           <p className="text-xs font-medium mb-1 opacity-70">
-            {message.playerName}
+            {message.player_name}
           </p>
         )}
         <p className="text-sm break-words break-all whitespace-pre-wrap">
@@ -40,7 +40,7 @@ export default function Message({ message, isCurrentPlayer }: MessageProps) {
             isCurrentPlayer ? "opacity-70" : "text-muted-foreground"
           }`}
         >
-          {message.timestamp.toLocaleTimeString([], {
+          {new Date(message.created_at).toLocaleTimeString([], {
             hour: "2-digit",
             minute: "2-digit",
           })}
@@ -48,7 +48,7 @@ export default function Message({ message, isCurrentPlayer }: MessageProps) {
       </div>
       {isCurrentPlayer && (
         <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-primary-foreground text-sm font-bold flex-shrink-0">
-          {message.playerName.charAt(0).toUpperCase()}
+          {message.player_name.charAt(0).toUpperCase()}
         </div>
       )}
     </div>

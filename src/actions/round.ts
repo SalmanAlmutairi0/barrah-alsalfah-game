@@ -36,7 +36,7 @@ export const startRound = async ({
 export const getRoundInfo = async (room_id: number) => {
   const { data, error } = await supabase
     .from("rounds")
-    .select("id, imposter_id, secret_word")
+    .select("id, imposter_id, secret_word, round_number")
     .eq("room_id", room_id)
     .order("created_at", { ascending: false })
     .limit(1)

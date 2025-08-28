@@ -1,7 +1,8 @@
 export interface ChatMessage {
   id: number;
-  playerId: number;
-  playerName: string;
+  player_id: number;
+  player_name: string;
   message: string;
-  timestamp: Date;
+  round_id: number;
+  created_at: string;
 }
