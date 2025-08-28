@@ -34,11 +34,10 @@ export default function CatagorySelection() {
     try {
       setLoading(true);
 
-      
       const activePlayers = players.filter((player) => player.is_active);
       const randomIndex = Math.floor(Math.random() * activePlayers.length);
       const randomPlayer = activePlayers[randomIndex];
-      
+
       const secretWord = await getRandomWord(room.selected_catagory);
       const imposterID = randomPlayer.id;
 
@@ -50,17 +49,14 @@ export default function CatagorySelection() {
 
       console.log("Round started:", round);
 
-      if(!round){
+      if (!round) {
         throw new Error("Could not start the round");
       }
 
       await chnageRoomStatus({
         roomID: room.id,
         status: "role_assignment",
-      })
-
-
-
+      });
     } catch (error) {
       console.error("Error starting game:", error);
       toast.error("حدث خطاء", {
@@ -71,7 +67,7 @@ export default function CatagorySelection() {
         },
         duration: 5000,
       });
-    }finally {
+    } finally {
       setLoading(false);
     }
   };
@@ -97,9 +93,13 @@ export default function CatagorySelection() {
             <Button
               disabled={loading}
               onClick={handleStartGame}
-              className="max-w-2xl w-full cursor-pointer h-12 text-lg font-bold bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 transition-all duration-200 transform hover:scale-105 disabled:transform-none"
+              className="max-w-2xl w-full h-12 text-lg font-bold bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 transition-all duration-200 transform hover:scale-105 disabled:transform-none"
             >
-               { loading ? <Loader2 className="ml-2 h-5 w-5 animate-spin" /> : "بدء اللعبة"}
+              {loading ? (
+                <Loader2 className="ml-2 h-5 w-5 animate-spin" />
+              ) : (
+                "بدء اللعبة"
+              )}
             </Button>
           </div>
         )}

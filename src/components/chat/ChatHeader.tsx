@@ -18,7 +18,7 @@ export default function ChatHeader() {
       {playerInfo.isHost && (
         <Button
           onClick={onStartVotingPhase}
-          className="bg-accent hover:bg-accent/90 text-accent-foreground cursor-pointer"
+          className="bg-accent hover:bg-accent/90 text-accent-foreground"
         >
           <Target className="w-4 h-4 mr-2" />
           ابدأ التصويت

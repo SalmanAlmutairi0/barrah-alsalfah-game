@@ -31,7 +31,7 @@ export default function ChatInput({
         onChange={(e) => onChange(e.target.value)}
         onKeyDown={handleKeyPress}
       />
-      <Button onClick={onSend} disabled={isLoading} className="cursor-pointer">
+      <Button onClick={onSend} disabled={isLoading}>
         {isLoading ? (
           <Loader2 className="w-4 h-4 animate-spin" />
         ) : (

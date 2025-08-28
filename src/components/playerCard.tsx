@@ -46,9 +46,7 @@ export default function PlayerCard({ player }: PlayerCardProps) {
           variant="outline"
           size="sm"
           onClick={handleKickPlayer}
-          className={`text-red-600 cursor-pointer ${
-            !currnetPlayerIsHost ? "hidden" : ""
-          }`}
+          className={`text-red-600 ${!currnetPlayerIsHost ? "hidden" : ""}`}
         >
           {loading ? <Loader2 className="animate-spin h-4 w-4" /> : "طرد"}
         </Button>

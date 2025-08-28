@@ -27,7 +27,7 @@ export default function WaitingRoom() {
       <WaitingRoomPlayers />
       {playerInfo.isHost && (
         <Button
-          className="w-full cursor-pointer h-12 text-lg font-bold bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 transition-all duration-200 transform hover:scale-105 disabled:transform-none"
+          className="w-full h-12 text-lg font-bold bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 transition-all duration-200 transform hover:scale-105 disabled:transform-none"
           disabled={players.length < 1}
           onClick={handleGameStart}
         >
