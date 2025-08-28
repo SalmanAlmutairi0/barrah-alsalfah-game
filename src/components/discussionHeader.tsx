@@ -65,7 +65,7 @@ export default function DiscussionHeader() {
           </div>
         </div>
         <div className="flex items-center justify-center gap-6 mt-4">
-          <Counter timeInSeconds={10} onCounterFinish={onCounterFinish} />
+          <Counter timeInSeconds={180} onCounterFinish={onCounterFinish} />
           <Separator orientation="vertical" className="h-8" />
           <div className="flex items-center gap-2">
             <Hash className="w-5 h-5 text-accent" />
