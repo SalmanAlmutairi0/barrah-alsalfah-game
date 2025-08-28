@@ -18,7 +18,7 @@ import { chnageRoomStatus } from "@/actions/rooms";
 import { Loader2 } from "lucide-react";
 
 export default function CatagorySelection() {
-  const { playerInfo } = usePlayerInfo();
+  const { playerInfo, savePlayerInfo } = usePlayerInfo();
   const { room } = useRoom();
   const { players } = usePlayers();
   const [loading, setLoading] = useState(false);
@@ -56,6 +56,11 @@ export default function CatagorySelection() {
       await chnageRoomStatus({
         roomID: room.id,
         status: "role_assignment",
+      });
+
+      savePlayerInfo({
+        ...playerInfo,
+        roundID: round.id,
       });
     } catch (error) {
       console.error("Error starting game:", error);

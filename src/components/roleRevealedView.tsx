@@ -7,6 +7,7 @@ import { usePlayerInfo } from "@/hooks/usePlayerInfo";
 import { chnageRoomStatus } from "@/actions/rooms";
 import { toast } from "sonner";
 import { useState } from "react";
+import { updateRoundStartTime } from "@/actions/round";
 
 export default function RoleRevealedView({
   isImposter,
@@ -29,6 +30,10 @@ export default function RoleRevealedView({
         roomID: playerInfo.roomID,
         status: "round_in_progress",
       });
+
+      if (playerInfo.roundID) {
+        await updateRoundStartTime(playerInfo.roundID);
+      }
     } catch (error) {
       console.log(error);
       toast.error("حدث خطأ أثناء بدء اللعبة");

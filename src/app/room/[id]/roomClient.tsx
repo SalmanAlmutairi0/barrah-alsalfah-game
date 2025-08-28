@@ -18,16 +18,19 @@ type Props = {
 };
 
 export default function RoomClient({ roomKey }: Props) {
-  const { playerInfo, deletePlayerInfo } = usePlayerInfo();
+  const { playerInfo, deletePlayerInfo, loading } = usePlayerInfo();
   const router = useRouter();
 
-
   // if the player joined by the link, we need to check if the room key is correct
+  // Only check after loading is complete to avoid redirecting due to empty initial state
   useEffect(() => {
+    if (loading) return; // Wait for player info to load
+
     if (playerInfo.roomKey !== roomKey || !playerInfo.roomKey) {
+      console.log("room key is not correct");
       router.push("/");
     }
-  }, []);
+  }, [playerInfo.roomKey, roomKey, router, loading]);
 
   // listener for when the user is kicked or the user didnt fill the player name or the room key
   useEffect(() => {
@@ -64,6 +67,15 @@ export default function RoomClient({ roomKey }: Props) {
     router,
     deletePlayerInfo,
   ]);
+
+  // Show loading while player info is being loaded from storage
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <Loader2 className="animate-spin size-14" />
+      </div>
+    );
+  }
 
   return (
     <RoomsProvider roomID={playerInfo.roomID || 0}>

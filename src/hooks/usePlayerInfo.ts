@@ -10,6 +10,7 @@ export type PlayerInfo = {
   roomID: number;
   isHost: boolean;
   selectedCatagory?: number;
+  roundID?: number;
 };
 
 const STORAGE_KEY = "playerInfo";
@@ -22,11 +23,14 @@ export function usePlayerInfo() {
     roomID: 0,
     isHost: false,
     selectedCatagory: undefined,
+    roundID: 0,
   });
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const saved = secureStorage.getItem(STORAGE_KEY);
     if (saved) setPlayerInfo(saved);
+    setLoading(false);
   }, []);
 
   const savePlayerInfo = useCallback((info: PlayerInfo) => {
@@ -42,6 +46,7 @@ export function usePlayerInfo() {
       roomID: 0,
       isHost: false,
       selectedCatagory: undefined,
+      roundID: 0,
     };
 
     setPlayerInfo(empty);
@@ -52,5 +57,6 @@ export function usePlayerInfo() {
     playerInfo,
     savePlayerInfo,
     deletePlayerInfo,
+    loading,
   };
 }

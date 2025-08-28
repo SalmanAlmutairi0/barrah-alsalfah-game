@@ -8,13 +8,12 @@ import { usePlayerInfo } from "@/hooks/usePlayerInfo";
 import { useEffect, useState } from "react";
 import { getRoundInfo } from "@/actions/round";
 
-
-
 export default function DiscussionHeader() {
   const { playerInfo } = usePlayerInfo();
   const [isImposter, setIsImposter] = useState(false);
   const [secretWord, setSecretWord] = useState("");
   const [roundNumber, setRoundNumber] = useState(0);
+  const [roundStartedAt, setRoundStartedAt] = useState<string>();
 
   const onCounterFinish = () => {
     toast.info("انتهى الوقت", {
@@ -30,9 +29,11 @@ export default function DiscussionHeader() {
     const fetchRoundInfo = async () => {
       try {
         const round = await getRoundInfo(playerInfo.roomID);
+
         setIsImposter(round.imposter_id === playerInfo.playerID);
         setSecretWord(round.secret_word);
         setRoundNumber(round.round_number);
+        setRoundStartedAt(round.started_at);
       } catch (error) {
         console.error("Error fetching round info:", error);
         toast.error("حدث خطأ ما");
@@ -65,7 +66,10 @@ export default function DiscussionHeader() {
           </div>
         </div>
         <div className="flex items-center justify-center gap-6 mt-4">
-          <Counter timeInSeconds={180} onCounterFinish={onCounterFinish} />
+          <Counter
+            timeInSeconds={180}
+            onCounterFinish={onCounterFinish}
+          />
           <Separator orientation="vertical" className="h-8" />
           <div className="flex items-center gap-2">
             <Hash className="w-5 h-5 text-accent" />

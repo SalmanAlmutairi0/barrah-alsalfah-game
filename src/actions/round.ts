@@ -31,12 +31,10 @@ export const startRound = async ({
   return data;
 };
 
-
-
 export const getRoundInfo = async (room_id: number) => {
   const { data, error } = await supabase
     .from("rounds")
-    .select("id, imposter_id, secret_word, round_number")
+    .select("id, imposter_id, secret_word, round_number, started_at")
     .eq("room_id", room_id)
     .order("created_at", { ascending: false })
     .limit(1)
@@ -48,4 +46,22 @@ export const getRoundInfo = async (room_id: number) => {
   }
 
   return data;
+};
+
+export const updateRoundStartTime = async (round_id: number) => {
+  const currentTime = new Date().toISOString();
+
+  const { error } = await supabase
+    .from("rounds")
+    .update({
+      started_at: currentTime,
+    })
+    .eq("id", round_id);
+
+  if (error) {
+    console.error("Error updating round:", error);
+    throw new Error("Could not update round");
+  }
+
+  return true;
 };
