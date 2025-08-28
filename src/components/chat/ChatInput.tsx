@@ -2,15 +2,21 @@
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Send } from "lucide-react";
+import { Loader2, Send } from "lucide-react";
 
 interface ChatInputProps {
   value: string;
   onChange: (value: string) => void;
   onSend: () => void;
+  isLoading?: boolean;
 }
 
-export default function ChatInput({ value, onChange, onSend }: ChatInputProps) {
+export default function ChatInput({
+  value,
+  onChange,
+  onSend,
+  isLoading,
+}: ChatInputProps) {
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
       onSend();
@@ -25,8 +31,12 @@ export default function ChatInput({ value, onChange, onSend }: ChatInputProps) {
         onChange={(e) => onChange(e.target.value)}
         onKeyDown={handleKeyPress}
       />
-      <Button onClick={onSend}>
-        <Send className="w-4 h-4" />
+      <Button onClick={onSend} disabled={isLoading} className="cursor-pointer">
+        {isLoading ? (
+          <Loader2 className="w-4 h-4 animate-spin" />
+        ) : (
+          <Send className="w-4 h-4" />
+        )}
       </Button>
     </div>
   );

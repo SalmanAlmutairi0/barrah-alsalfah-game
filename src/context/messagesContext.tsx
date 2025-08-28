@@ -21,6 +21,7 @@ type MessagesContextType = {
     playerId: number,
     playerName: string
   ) => Promise<void>;
+  sendingMessage: boolean;
 };
 
 export const MessagesContext = createContext<MessagesContextType | undefined>(
@@ -39,6 +40,7 @@ export const MessagesProvider = ({
   const [messages, setMessages] = useState<Message[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [messagesLoading, setMessagesLoading] = useState<boolean>(false);
+  const [sendingMessage, setSendingMessage] = useState<boolean>(false);
 
   const sendMessage = async (
     messageText: string,
@@ -46,6 +48,7 @@ export const MessagesProvider = ({
     playerName: string
   ) => {
     try {
+      setSendingMessage(true);
       const { error } = await supabase.from("messages").insert({
         player_id: playerId,
         player_name: playerName,
@@ -60,6 +63,8 @@ export const MessagesProvider = ({
     } catch (error) {
       console.error("Unexpected error sending message:", error);
       setError("حصل خطأ أثناء إرسال الرسالة.");
+    } finally {
+      setSendingMessage(false);
     }
   };
 
@@ -116,7 +121,7 @@ export const MessagesProvider = ({
 
   return (
     <MessagesContext.Provider
-      value={{ messages, messagesLoading, error, sendMessage }}
+      value={{ messages, messagesLoading, error, sendMessage, sendingMessage }}
     >
       {children}
     </MessagesContext.Provider>
