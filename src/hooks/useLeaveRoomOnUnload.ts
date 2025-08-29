@@ -1,48 +1,45 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 export function useLeaveRoomOnUnload(playerID: number | null | undefined) {
+  const heartbeatIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
   useEffect(() => {
     if (!playerID) return;
 
-    const send = () => {
-      const payload = new Blob([JSON.stringify({ playerID })], {
-        type: "application/json",
-      });
-
-      // Prefer sendBeacon
-      const ok = navigator.sendBeacon("/api/delete-player", payload);
-
-      // Fallback: keepalive fetch (for some browsers)
-      if (!ok) {
-        try {
-          fetch("/api/delete-player", {
-            method: "POST",
-            body: JSON.stringify({ playerID }),
-            headers: { "Content-Type": "application/json" },
-            keepalive: true,
-          });
-        } catch {}
+    const sendHeartbeat = async () => {
+      try {
+        await fetch("/api/player-heartbeat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ playerID }),
+        });
+        console.log("Heartbeat sent successfully");
+      } catch (error) {
+        console.error("Failed to send heartbeat:", error);
       }
     };
 
-    const onUnload = () => send();
+    // Send heartbeat every 5 seconds
+    const startHeartbeat = () => {
+      // Send initial heartbeat
+      sendHeartbeat();
 
-    // Only trigger on real unload events
-    window.addEventListener("beforeunload", onUnload);
-    window.addEventListener("pagehide", onUnload);
-    document.addEventListener("visibilitychange", () => {
-      if (document.visibilityState === "hidden") send();
-    });
+      // Set up interval
+      heartbeatIntervalRef.current = setInterval(() => {
+        sendHeartbeat();
+      }, 60000); // Every 60 seconds
+    };
 
-    // Cleanup listeners on unmount (don't call send here)
+    // Start the heartbeat system
+    startHeartbeat();
+
     return () => {
-      window.removeEventListener("beforeunload", onUnload);
-      window.removeEventListener("pagehide", onUnload);
-      document.removeEventListener("visibilitychange", () => {
-        if (document.visibilityState === "hidden") send();
-      });
+      // Cleanup interval when component unmounts or playerID changes
+      if (heartbeatIntervalRef.current) {
+        clearInterval(heartbeatIntervalRef.current);
+      }
     };
   }, [playerID]);
 }
