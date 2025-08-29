@@ -14,7 +14,7 @@ export async function POST(request: Request) {
 
     // Find ALL players in this room who haven't sent a heartbeat recently
     // (except the player doing the checking - they're obviously still active)
-    const cutoffTime = new Date(Date.now() - 120000); // 2 minutes ago
+    const cutoffTime = new Date(Date.now() - 90000); // 1.5 minutes ago
 
     const { data: inactivePlayers, error: selectError } = await supabase
       .from("players")

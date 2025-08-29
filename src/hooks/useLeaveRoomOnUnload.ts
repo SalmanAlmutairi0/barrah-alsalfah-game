@@ -29,7 +29,7 @@ export function useLeaveRoomOnUnload(playerID: number | null | undefined) {
       // Set up interval
       heartbeatIntervalRef.current = setInterval(() => {
         sendHeartbeat();
-      }, 60000); // Every 60 seconds
+      }, 30000); // Every 30 seconds
     };
 
     // Start the heartbeat system

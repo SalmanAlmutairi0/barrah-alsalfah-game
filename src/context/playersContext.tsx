@@ -25,9 +25,14 @@ export const PlayersContext = createContext<PlayersContextType | undefined>(
 type PlayersProviderProps = {
   roomID: number;
   children: React.ReactNode;
+  currentPlayerID?: number;
 };
 
-export const PlayersProvider = ({ roomID, children }: PlayersProviderProps) => {
+export const PlayersProvider = ({
+  roomID,
+  children,
+  currentPlayerID,
+}: PlayersProviderProps) => {
   const [players, setPlayers] = useState<Player[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [playersLoading, setPlayersLoading] = useState<boolean>(false);
@@ -50,7 +55,26 @@ export const PlayersProvider = ({ roomID, children }: PlayersProviderProps) => {
           console.error("Failed to fetch players:", error);
           setError("حصل خطأ أثناء جلب الاعبين.");
         } else {
-          setPlayers(data || []);
+          const fetchedPlayers = data || [];
+
+          // If current player is not in the results (race condition),
+          // fetch their info and add them
+          if (
+            currentPlayerID &&
+            !fetchedPlayers.find((p) => p.id === currentPlayerID)
+          ) {
+            const { data: currentPlayerData } = await supabase
+              .from("players")
+              .select("*")
+              .eq("id", currentPlayerID)
+              .single();
+
+            if (currentPlayerData) {
+              fetchedPlayers.push(currentPlayerData);
+            }
+          }
+
+          setPlayers(fetchedPlayers);
         }
       } catch (error) {
         console.error("Unexpected error:", error);
@@ -87,9 +111,19 @@ export const PlayersProvider = ({ roomID, children }: PlayersProviderProps) => {
                 if (!updated.is_active) {
                   // remove inactive players
                   return prev.filter((p) => p.id !== updated.id);
+                } else {
+                  // Handle active players: update if exists, add if rejoining
+                  const existingIndex = prev.findIndex(
+                    (p) => p.id === updated.id
+                  );
+                  if (existingIndex >= 0) {
+                    // Player exists, update them
+                    return prev.map((p) => (p.id === updated.id ? updated : p));
+                  } else {
+                    // Player rejoining, add them back to the list
+                    return [...prev, updated];
+                  }
                 }
-
-                return prev.map((p) => (p.id === updated.id ? updated : p));
 
               case "DELETE":
                 return prev.filter((p) => p.id !== (old as Player).id);
@@ -105,7 +139,7 @@ export const PlayersProvider = ({ roomID, children }: PlayersProviderProps) => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [roomID]);
+  }, [roomID, currentPlayerID]);
 
   return (
     <PlayersContext.Provider value={{ players, playersLoading, error }}>
