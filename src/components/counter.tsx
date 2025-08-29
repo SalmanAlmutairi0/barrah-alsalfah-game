@@ -5,11 +5,13 @@ import { useEffect, useState } from "react";
 type CounterProps = {
   timeInSeconds: number;
   onCounterFinish: () => void;
+  clockColor?: "primary" | "destructive";
 };
 
 export default function Counter({
   timeInSeconds,
   onCounterFinish,
+  clockColor = "primary",
 }: CounterProps) {
   const [secondsLeft, setSecondsLeft] = useState(timeInSeconds);
 
@@ -38,7 +40,7 @@ export default function Counter({
 
   return (
     <div className="flex items-center gap-2">
-      <Clock className="w-5 h-5 text-primary" />
+      <Clock className={`w-5 h-5 ${clockColor === "primary" ? "text-primary" : "text-destructive"}`} />
       <span
         className={`text-2xl font-bold ${
           secondsLeft <= 30

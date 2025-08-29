@@ -8,6 +8,7 @@ export type RoomStatus =
   | "catagory_selection"
   | "role_assignment"
   | "round_in_progress"
+  | "voting_in_progress"
   | "round_summary"
   | "finished";
 

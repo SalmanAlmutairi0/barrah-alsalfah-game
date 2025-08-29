@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import WaitingRoom from "../components/waitingRoom";
 import { PlayersProvider } from "@/context/playersContext";
 import { usePlayerInfo } from "@/hooks/usePlayerInfo";
@@ -12,6 +12,10 @@ import { useRoom } from "@/hooks/useRoom";
 import { Loader2 } from "lucide-react";
 import RoleAssignment from "../components/roleAssignment";
 import RoundInProgress from "../components/roundInProgress";
+import VotingInProgress from "../components/votingInProgress";
+import { VotesProvider } from "@/context/votesContext";
+import { getRoundInfo } from "@/actions/round";
+import { toast } from "sonner";
 
 type Props = {
   roomKey: string;
@@ -105,7 +109,44 @@ const RenderRoomByStatus = () => {
       return <RoleAssignment />;
     case "round_in_progress":
       return <RoundInProgress />;
+    case "voting_in_progress":
+      return <VotingWrapper />;
     // default:
     //   return <div>Unknown status</div>;
   }
+};
+
+const VotingWrapper = () => {
+  const { playerInfo } = usePlayerInfo();
+  const [roundID, setRoundID] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (!playerInfo.roomID) return;
+
+    const fetchRoundInfo = async () => {
+      try {
+        const round = await getRoundInfo(playerInfo.roomID);
+        setRoundID(round.id);
+      } catch (error) {
+        console.error("Error fetching round info:", error);
+        toast.error("حدث خطأ في تحميل معلومات الجولة");
+      }
+    };
+
+    fetchRoundInfo();
+  }, [playerInfo.roomID]);
+
+  if (!roundID) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <Loader2 className="animate-spin size-14" />
+      </div>
+    );
+  }
+
+  return (
+    <VotesProvider roundID={roundID}>
+      <VotingInProgress />
+    </VotesProvider>
+  );
 };
