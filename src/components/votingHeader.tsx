@@ -29,7 +29,7 @@ export default function VotingHeader({
           </CardTitle>
         </div>
         <CardDescription className="text-lg">
-          من تشك أنه برا السالفة؟ صوت الآن!
+          من تشك أنه برا السالفة؟ صوت الحين!
         </CardDescription>
         <div className="flex items-center justify-center gap-2 mt-4">
           <Counter

@@ -15,8 +15,8 @@ export default function VotingInProgress() {
   const { players } = usePlayers();
   const { hasUserVoted, votes, submitVote, votesLoading, error } = useVotes();
   const currentPlayerId = playerInfo.playerID;
-
   const hasVoted = hasUserVoted(currentPlayerId);
+  const allPlayersVoted = votes.length === players.length;
 
   const handleVote = async () => {
     if (selectedTargetID && !hasVoted) {
