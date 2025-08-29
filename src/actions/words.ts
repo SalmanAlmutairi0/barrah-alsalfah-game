@@ -22,3 +22,19 @@ export const getRandomWord = async (categoryID: number) => {
     return data[randomIndex].word;
 
 }
+
+
+export const getWords = async (categoryID: number) => {
+    const { data, error } = await supabase
+        .from("words")
+        .select("id,word")
+        .limit(9)
+        .eq("catagory_id", categoryID);
+
+    if (error) {
+        console.error("Error fetching words:", error);
+        throw new Error("Could not fetch words");
+    }
+
+    return data;
+}

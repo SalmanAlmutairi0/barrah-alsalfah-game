@@ -5,10 +5,14 @@ import { Category, getCategories } from "@/actions/catagory";
 import CategoryCardSkeleton from "./catagoryCardSkeleton";
 import { toast } from "sonner";
 
-export default function CatagoryList() {
+type Props = {
+  selectedCategory: number;
+  setSelectedCategory: (category: number) => void;
+};
+
+export default function CatagoryList({ selectedCategory, setSelectedCategory }: Props) {
   const [loading, setLoading] = useState(true);
   const [categories, setCategories] = useState<Category[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
 
   useEffect(() => {
     const fetchCategories = async () => {

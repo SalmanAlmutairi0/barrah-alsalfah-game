@@ -9,6 +9,7 @@ export type RoomStatus =
   | "role_assignment"
   | "round_in_progress"
   | "voting_in_progress"
+  | "imposter_got_caught"
   | "round_summary"
   | "finished";
 

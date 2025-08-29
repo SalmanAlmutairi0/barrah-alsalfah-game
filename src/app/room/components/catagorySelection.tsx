@@ -22,6 +22,7 @@ export default function CatagorySelection() {
   const { room } = useRoom();
   const { players } = usePlayers();
   const [loading, setLoading] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<number>(0);
 
   const handleStartGame = async () => {
     if (!room?.selected_catagory) {
@@ -45,6 +46,7 @@ export default function CatagorySelection() {
         room_id: room.id,
         imposter_id: imposterID,
         secret_word: secretWord,
+        category_id: selectedCategory,
       });
 
 
@@ -90,7 +92,7 @@ export default function CatagorySelection() {
           </CardHeader>
         </Card>
 
-        <CatagoryList />
+        <CatagoryList selectedCategory={selectedCategory} setSelectedCategory={setSelectedCategory} />
 
         {playerInfo.isHost && (
           <div className="flex justify-center">

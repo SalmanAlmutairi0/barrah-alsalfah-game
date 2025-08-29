@@ -6,12 +6,14 @@ type RoundProps = {
   room_id: number;
   imposter_id: number;
   secret_word: string;
+  category_id: number;
 };
 
 export const startRound = async ({
   imposter_id,
   secret_word,
   room_id,
+  category_id,
 }: RoundProps) => {
   const { data, error } = await supabase
     .from("rounds")
@@ -19,6 +21,7 @@ export const startRound = async ({
       room_id: room_id,
       imposter_id: imposter_id,
       secret_word: secret_word,
+      category_id: category_id,
     })
     .select("id, imposter_id, secret_word")
     .single();

@@ -16,6 +16,8 @@ import VotingInProgress from "../components/votingInProgress";
 import { VotesProvider } from "@/context/votesContext";
 import { getRoundInfo } from "@/actions/round";
 import { toast } from "sonner";
+import RoundSummary from "../components/roundSummary";
+import ImposterGotCaught from "../components/imposterGuessPhase";
 
 type Props = {
   roomKey: string;
@@ -85,7 +87,7 @@ export default function RoomClient({ roomKey }: Props) {
     <RoomsProvider roomID={playerInfo.roomID || 0}>
       <PlayersProvider roomID={playerInfo.roomID || 0}>
         <RenderRoomByStatus />
-        {/* <RoundInProgress /> */}
+        {/* <ImposterGotCaught /> */}
       </PlayersProvider>
     </RoomsProvider>
   );
@@ -111,6 +113,10 @@ const RenderRoomByStatus = () => {
       return <RoundInProgress />;
     case "voting_in_progress":
       return <VotingWrapper />;
+    case "imposter_got_caught":
+      return <ImposterGotCaught />;
+    case "round_summary":
+      return <RoundSummary />;
     // default:
     //   return <div>Unknown status</div>;
   }
