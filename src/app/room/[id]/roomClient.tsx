@@ -18,7 +18,7 @@ import { getRoundInfo } from "@/actions/round";
 import { toast } from "sonner";
 import RoundSummary from "../components/roundSummary";
 import ImposterGotCaught from "../components/imposterGuessPhase";
-import { useLeaveRoomOnUnload } from "@/hooks/useLeaveRoomOnUnload";
+import { usePlayerHeartbeat } from "@/hooks/usePlayerHeartbeat";
 
 type Props = {
   roomKey: string;
@@ -28,7 +28,7 @@ export default function RoomClient({ roomKey }: Props) {
   const { playerInfo, deletePlayerInfo, loading } = usePlayerInfo();
   const router = useRouter();
 
-  useLeaveRoomOnUnload(playerInfo.playerID);
+  usePlayerHeartbeat(playerInfo.playerID);
 
   // Each player checks for OTHER inactive players in their room
   useEffect(() => {

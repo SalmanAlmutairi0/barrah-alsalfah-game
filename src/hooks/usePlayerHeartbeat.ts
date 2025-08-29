@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 
-export function useLeaveRoomOnUnload(playerID: number | null | undefined) {
+export function usePlayerHeartbeat(playerID: number | null | undefined) {
   const heartbeatIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
