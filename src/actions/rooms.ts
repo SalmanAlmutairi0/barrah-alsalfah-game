@@ -2,6 +2,7 @@
 
 import { supabase } from "@/lib/supabaseClient";
 import { createPlayer } from "./players";
+import { RoomStatus } from "@/context/roomContext";
 
 type CreateRoomParams = {
   playerName: string;
@@ -84,13 +85,7 @@ export const joinRoom = async ({ playerName, roomKey }: JoinRoomParams) => {
 
 type ChangeRoomStatusParams = {
   roomID: number;
-  status:
-    | "waiting_for_players"
-    | "catagory_selection"
-    | "role_assignment"
-    | "round_in_progress"
-    | "round_summary"
-    | "finished";
+  status: RoomStatus;
 };
 
 export const chnageRoomStatus = async ({

@@ -28,7 +28,6 @@ export default function Counter({
       onCounterFinish();
       return;
     }
-    
 
     const interval = setInterval(() => {
       setSecondsLeft((prev) => (prev > 0 ? prev - 1 : 0));

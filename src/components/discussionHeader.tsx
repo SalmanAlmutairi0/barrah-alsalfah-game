@@ -7,21 +7,61 @@ import { toast } from "sonner";
 import { usePlayerInfo } from "@/hooks/usePlayerInfo";
 import { useEffect, useState } from "react";
 import { getRoundInfo } from "@/actions/round";
+import { chnageRoomStatus } from "@/actions/rooms";
 
 export default function DiscussionHeader() {
   const { playerInfo } = usePlayerInfo();
   const [isImposter, setIsImposter] = useState(false);
   const [secretWord, setSecretWord] = useState("");
   const [roundNumber, setRoundNumber] = useState(0);
-  const [roundStartedAt, setRoundStartedAt] = useState<string>();
+  const [startedAtSeconds, setStartedAtSeconds] = useState<number | null>(null);
+  const [remainingTime, setRemainingTime] = useState(180); // Default 3 minutes
 
   const onCounterFinish = () => {
+    // First toast: Time's up (4 seconds)
     toast.info("انتهى الوقت", {
-      // Add extra info to the toast
       description: "يرجى إنهاء النقاش والانتقال للخطوة التالية.",
       duration: 4000,
     });
+
+    // After first toast finishes, show warning about voting (5 seconds)
+    setTimeout(() => {
+      toast.warning("التصويت سيبدأ خلال 5 ثوان!", {
+        description: "تجهز تصوت على الي تحس انه برا السالفة",
+        duration: 5000,
+      });
+
+      // After the warning, update room status to voting
+      setTimeout(async () => {
+        try {
+          if (playerInfo.roomID) {
+            await chnageRoomStatus({
+              roomID: playerInfo.roomID,
+              status: "voting_in_progress",
+            });
+            console.log("Room status updated to voting");
+          }
+        } catch (error) {
+          console.error("Error updating room status to voting:", error);
+          toast.error("حدث خطأ في بدء التصويت");
+        }
+      }, 5000); // 5 seconds after the warning toast appears
+    }, 4000); // 4 seconds after the first toast appears
   };
+
+  // Calculate remaining time when startedAtSeconds changes
+  useEffect(() => {
+    if (startedAtSeconds) {
+      const currentTimeSeconds = Math.floor(Date.now() / 1000);
+      const elapsedSeconds = currentTimeSeconds - startedAtSeconds;
+      const totalDiscussionTime = 5; // 3 minutes in seconds
+      const remaining = Math.max(0, totalDiscussionTime - elapsedSeconds);
+      setRemainingTime(remaining);
+    } else {
+      // If no start time, use full timer
+      setRemainingTime(180);
+    }
+  }, [startedAtSeconds]);
 
   useEffect(() => {
     if (!playerInfo.roomID) return;
@@ -33,7 +73,7 @@ export default function DiscussionHeader() {
         setIsImposter(round.imposter_id === playerInfo.playerID);
         setSecretWord(round.secret_word);
         setRoundNumber(round.round_number);
-        setRoundStartedAt(round.started_at);
+        setStartedAtSeconds(round.started_at);
       } catch (error) {
         console.error("Error fetching round info:", error);
         toast.error("حدث خطأ ما");
@@ -67,7 +107,7 @@ export default function DiscussionHeader() {
         </div>
         <div className="flex items-center justify-center gap-6 mt-4">
           <Counter
-            timeInSeconds={180}
+            timeInSeconds={remainingTime}
             onCounterFinish={onCounterFinish}
           />
           <Separator orientation="vertical" className="h-8" />

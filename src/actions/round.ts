@@ -49,12 +49,12 @@ export const getRoundInfo = async (room_id: number) => {
 };
 
 export const updateRoundStartTime = async (round_id: number) => {
-  const currentTime = new Date().toISOString();
+  const currentTimeSeconds = Math.floor(Date.now() / 1000); // Unix timestamp in seconds
 
   const { error } = await supabase
     .from("rounds")
     .update({
-      started_at: currentTime,
+      started_at: currentTimeSeconds,
     })
     .eq("id", round_id);
 
