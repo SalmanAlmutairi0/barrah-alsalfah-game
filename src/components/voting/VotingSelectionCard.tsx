@@ -13,9 +13,9 @@ import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Target } from "lucide-react";
 import VotingPlayerCard from "./VotingPlayerCard";
-import { Player } from "./types";
 import { Vote } from "@/context/votesContext";
 import { useVotes } from "@/hooks/useVotes";
+import { Player } from "@/context/playersContext";
 
 type VotingSelectionCardProps = {
   players: Player[];

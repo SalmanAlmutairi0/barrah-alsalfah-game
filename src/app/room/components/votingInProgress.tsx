@@ -68,7 +68,10 @@ export default function VotingInProgress() {
           mostVotedPlayerID = playerID;
           maxVotes = voteCount;
           isTie = false;
-        } else if (voteCount === maxVotes && maxVotes > 0 || voteCount === 0) {
+        } else if (
+          (voteCount === maxVotes && maxVotes > 0) ||
+          voteCount === 0
+        ) {
           isTie = true;
         }
       });

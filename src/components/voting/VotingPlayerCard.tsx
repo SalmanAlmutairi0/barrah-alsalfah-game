@@ -3,7 +3,7 @@
 import React from "react";
 import { Badge } from "@/components/ui/badge";
 import { Target, Crown } from "lucide-react";
-import { Player } from "./types";
+import { Player } from "@/context/playersContext";
 
 type VotingPlayerCardProps = {
   player: Player;
