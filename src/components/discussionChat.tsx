@@ -28,7 +28,7 @@ export default function DiscussionChat() {
   };
 
   return (
-    <Card className="border-2 border-primary/20 shadow-lg w-full flex-1 flex flex-col min-w-0 max-h-[70vh] md:max-h-[600px] overflow-hidden">
+    <Card className="border-2 border-primary/20 shadow-lg w-full flex-1 flex flex-col min-w-0  min-h-[70vh] max-h-[70vh] md:min-h-[600px] md:max-h-[600px] overflow-hidden">
       <CardHeader>
         <ChatHeader />
       </CardHeader>

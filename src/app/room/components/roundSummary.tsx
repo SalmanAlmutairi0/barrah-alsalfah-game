@@ -7,11 +7,12 @@ import RoundResultHeader from "@/components/roundResultHeader";
 import Leaderboard from "@/components/leaderboard";
 import RoundActions from "@/components/roundActions";
 import ScoringExplanation from "@/components/scoringExplanation";
+import { useRoom } from "@/hooks/useRoom";
 
 export default function RoundSummary() {
   const { players } = usePlayers();
   const { playerInfo } = usePlayerInfo();
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-card to-muted p-4">

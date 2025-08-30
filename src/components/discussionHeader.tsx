@@ -8,12 +8,13 @@ import { usePlayerInfo } from "@/hooks/usePlayerInfo";
 import { useEffect, useState } from "react";
 import { getRoundInfo } from "@/actions/round";
 import { chnageRoomStatus } from "@/actions/rooms";
+import { useRoom } from "@/hooks/useRoom";
 
 export default function DiscussionHeader() {
   const { playerInfo } = usePlayerInfo();
+  const { room } = useRoom();
   const [isImposter, setIsImposter] = useState(false);
   const [secretWord, setSecretWord] = useState("");
-  const [roundNumber, setRoundNumber] = useState(0);
   const [startedAtSeconds, setStartedAtSeconds] = useState<number | null>(null);
   const [remainingTime, setRemainingTime] = useState(180); // Default 3 minutes
 
@@ -54,7 +55,7 @@ export default function DiscussionHeader() {
     if (startedAtSeconds) {
       const currentTimeSeconds = Math.floor(Date.now() / 1000);
       const elapsedSeconds = currentTimeSeconds - startedAtSeconds;
-      const totalDiscussionTime = 5; // 3 minutes in seconds
+      const totalDiscussionTime = 180; // 3 minutes in seconds
       const remaining = Math.max(0, totalDiscussionTime - elapsedSeconds);
       setRemainingTime(remaining);
     } else {
@@ -72,7 +73,6 @@ export default function DiscussionHeader() {
 
         setIsImposter(round.imposter_id === playerInfo.playerID);
         setSecretWord(round.secret_word);
-        setRoundNumber(round.round_number);
         setStartedAtSeconds(round.started_at);
       } catch (error) {
         console.error("Error fetching round info:", error);
@@ -113,7 +113,7 @@ export default function DiscussionHeader() {
           <Separator orientation="vertical" className="h-8" />
           <div className="flex items-center gap-2">
             <Hash className="w-5 h-5 text-accent" />
-            <span className="text-lg font-medium">الجولة {roundNumber}</span>
+            <span className="text-lg font-medium">الجولة {room?.round}</span>
           </div>
         </div>
       </CardHeader>

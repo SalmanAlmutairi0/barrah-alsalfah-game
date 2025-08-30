@@ -2,7 +2,8 @@ import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Loader2, Target } from "lucide-react";
-import { chnageRoomStatus } from "@/actions/rooms";
+import { chnageRoomStatus, updateRound } from "@/actions/rooms";
+import { useRoom } from "@/hooks/useRoom";
 import { toast } from "sonner";
 
 type RoundActionsProps = {
@@ -16,9 +17,20 @@ export default function RoundActions({
   loading,
   setLoading,
 }: RoundActionsProps) {
+  const { room } = useRoom();
+
   const handleNextRound = async () => {
     try {
       setLoading(true);
+
+      // Increment the round number
+      if (room?.round !== undefined) {
+        await updateRound({
+          roomID: roomID,
+          round: room.round + 1,
+        });
+      }
+
       await chnageRoomStatus({
         roomID: roomID,
         status: "catagory_selection",
@@ -41,11 +53,13 @@ export default function RoundActions({
             onClick={handleNextRound}
             disabled={loading}
           >
-            <Target className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
             {loading ? (
               <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
             ) : (
-              "الجولة التالية"
+              <>
+                <Target className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+                الجولة التالية
+              </>
             )}{" "}
           </Button>
         </div>

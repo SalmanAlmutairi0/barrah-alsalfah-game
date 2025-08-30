@@ -46,7 +46,7 @@ export default function CatagorySelection() {
         room_id: room.id,
         imposter_id: imposterID,
         secret_word: secretWord,
-        category_id: selectedCategory,
+        category_id: selectedCategory || room.selected_catagory,
       });
 
 

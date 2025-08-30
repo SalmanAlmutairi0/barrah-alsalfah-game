@@ -104,3 +104,22 @@ export const chnageRoomStatus = async ({
     throw error;
   }
 };
+
+type UpdateRoundParams = {
+  roomID: number;
+  round: number;
+};
+
+export const updateRound = async ({ roomID, round }: UpdateRoundParams) => {
+  const { error } = await supabase
+    .from("rooms")
+    .update({ round })
+    .eq("id", roomID);
+
+  if (error) {
+    console.error("Error updating round:", error);
+    throw error;
+  }
+
+  return true;
+};
