@@ -1,5 +1,7 @@
 "use server";
 
+import { Player } from "@/context/playersContext";
+import { Vote } from "@/context/votesContext";
 import { supabase } from "@/lib/supabaseClient";
 
 type PlayerInsertResponse = { id: number };
@@ -57,8 +59,8 @@ export const updatePlayerScores = async (
   imposterID: number,
   mostVotedPlayerID: number | null,
   isTie: boolean,
-  players: any[],
-  votes: any[]
+  players: Player[],
+  votes: Vote[]
 ) => {
   try {
     for (const player of players) {
@@ -71,12 +73,21 @@ export const updatePlayerScores = async (
       let scoreToAdd = 0;
 
       if (isImposter) {
-        // IMPOSTER: Only give points if survived, caught = 0 for now
+        // IMPOSTER SCORING
         if (mostVotedPlayerID !== imposterID || isTie) {
-          scoreToAdd = 200; // Survived
+          // Imposter survived
+          scoreToAdd = 200;
+        } else {
+          // Imposter got caught - no points here, will be handled in guess phase
+          scoreToAdd = 0;
+        }
+
+        // Apply voting penalty for imposter too
+        if (!didVote) {
+          scoreToAdd += -25; // Penalty for not voting
         }
       } else {
-        // INNOCENT
+        // INNOCENT SCORING
         if (!didVote) {
           scoreToAdd = -25; // Didn't vote
         } else if (
@@ -94,9 +105,11 @@ export const updatePlayerScores = async (
       // Update score if not zero
       if (scoreToAdd !== 0) {
         const currentScore = player.score || 0;
+        const newScore = currentScore + scoreToAdd;
+
         await supabase
           .from("players")
-          .update({ score: currentScore + scoreToAdd })
+          .update({ score: newScore })
           .eq("id", player.id);
       }
     }

@@ -11,9 +11,11 @@ import { toast } from "sonner";
 import { chnageRoomStatus } from "@/actions/rooms";
 import { getRoundInfo } from "@/actions/round";
 import { RoomStatus } from "@/context/roomContext";
+import { updatePlayerScores } from "@/actions/players";
 
 export default function VotingInProgress() {
   const [selectedTargetID, setSelectedTargetID] = useState<number | null>(null);
+  const [hasProcessedVotes, setHasProcessedVotes] = useState(false);
   const { playerInfo } = usePlayerInfo();
   const { players } = usePlayers();
   const { hasUserVoted, votes, submitVote, votesLoading, error, getVoteCount } =
@@ -24,13 +26,13 @@ export default function VotingInProgress() {
 
   useEffect(() => {
     // if all players voted, proceed to round summary
-    if (allPlayersVoted) {
+    if (allPlayersVoted && !hasProcessedVotes) {
       updateRoomStatus();
     }
-  }, [allPlayersVoted]);
+  }, [allPlayersVoted, hasProcessedVotes]);
 
   const handleTimerFinish = async () => {
-    if (allPlayersVoted) return;
+    if (allPlayersVoted || hasProcessedVotes) return;
     await updateRoomStatus();
   };
 
@@ -46,7 +48,13 @@ export default function VotingInProgress() {
   };
 
   const updateRoomStatus = async () => {
+    // Prevent double execution
+    if (hasProcessedVotes) {
+      return;
+    }
+
     try {
+      setHasProcessedVotes(true);
       // Get the current round info to find the imposter
       const roundInfo = await getRoundInfo(playerInfo.roomID);
       const imposterID = roundInfo.imposter_id;
@@ -75,6 +83,15 @@ export default function VotingInProgress() {
           isTie = true;
         }
       });
+
+      // Update player scores based on voting results
+      await updatePlayerScores(
+        imposterID,
+        mostVotedPlayerID,
+        isTie,
+        players,
+        votes
+      );
 
       // Determine the status based on voting results
       let newStatus: RoomStatus;
@@ -106,6 +123,7 @@ export default function VotingInProgress() {
     } catch (error) {
       console.error("Error changing room status:", error);
       toast.error("حدث خطأ في تحديد نتيجة التصويت");
+      setHasProcessedVotes(false); // Reset only on error
     }
   };
 

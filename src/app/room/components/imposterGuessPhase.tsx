@@ -7,6 +7,8 @@ import { getRoundInfo } from "@/actions/round";
 import { useRoom } from "@/hooks/useRoom";
 import { usePlayers } from "@/hooks/usePlayers";
 import { getWords } from "@/actions/words";
+import { updateImposterCaughtScore } from "@/actions/players";
+import { chnageRoomStatus } from "@/actions/rooms";
 import ImposterGuessHeader from "@/components/imposterGuessHeader";
 import ImposterWordSelection from "@/components/imposterWordSelection";
 import ImposterWaitingView from "@/components/imposterWaitingView";
@@ -90,47 +92,74 @@ export default function ImposterGotCaught() {
   };
 
   const handleSubmitGuess = async () => {
-    // if (!selectedWord || hasSubmitted || timeUp) return;
+    if (!selectedWord || hasSubmitted || timeUp || !isImposter) return;
 
-    // try {
-    //   setHasSubmitted(true);
+    try {
+      setHasSubmitted(true);
 
-    //   // Here you might want to store the guess in the database
-    //   // For now, we'll just proceed to round summary
+      // Check if guess is correct
+      const isCorrect = selectedWord === secretWord;
 
-    //   await chnageRoomStatus({
-    //     roomID: playerInfo.roomID,
-    //     status: "round_summary",
-    //   });
+      // Update imposter score based on guess
+      if (imposter?.id) {
+        await updateImposterCaughtScore(imposter.id, isCorrect);
+      }
 
-    const isCorrect = selectedWord === secretWord;
-    toast.success(
-      isCorrect
-        ? "ياسلام عليك, اجابتك صحيحة"
-        : "اجابتك غلط, لكن ماعليه تقدر تحاول مره ثانية"
-    );
-    // } catch (error) {
-    //   console.error("Error submitting guess:", error);
-    //   toast.error("حدث خطأ في إرسال التخمين");
-    //   setHasSubmitted(false);
-    // }
+      // Show feedback to user
+      toast.success(
+        isCorrect
+          ? "ياسلام عليك! اجابتك صحيحة - حصلت على نقاط إضافية"
+          : "اجابتك غلط - تم خصم نقاط منك"
+      );
+
+      // Wait a moment for user to see the feedback
+      setTimeout(async () => {
+        // Proceed to round summary
+        await chnageRoomStatus({
+          roomID: playerInfo.roomID,
+          status: "round_summary",
+        });
+      }, 2000);
+    } catch (error) {
+      console.error("Error submitting guess:", error);
+      toast.error("حدث خطأ في إرسال التخمين");
+      setHasSubmitted(false);
+    }
   };
 
   const handleTimerFinish = async () => {
     setTimeUp(true);
 
-    // If imposter hasn't submitted, auto-proceed to round summary
-    // if (!hasSubmitted) {
-    //   try {
-    //     await chnageRoomStatus({
-    //       roomID: playerInfo.roomID,
-    //       status: "round_summary",
-    //     });
-    //     toast.info("انتهى الوقت! انتقال إلى ملخص الجولة");
-    //   } catch (error) {
-    //     console.error("Error updating room status:", error);
-    //   }
-    // }
+    // If imposter hasn't submitted, give them penalty and proceed
+    if (!hasSubmitted && isImposter && imposter?.id) {
+      try {
+        // Give penalty for not guessing (treated as wrong guess)
+        await updateImposterCaughtScore(imposter.id, false);
+
+        toast.error("انتهى الوقت! تم خصم نقاط منك لعدم التخمين");
+
+        // Wait a moment then proceed to round summary
+        setTimeout(async () => {
+          await chnageRoomStatus({
+            roomID: playerInfo.roomID,
+            status: "round_summary",
+          });
+        }, 2000);
+      } catch (error) {
+        console.error("Error updating room status:", error);
+      }
+    } else if (!isImposter) {
+      // For non-imposters, just proceed to round summary when time is up
+      try {
+        await chnageRoomStatus({
+          roomID: playerInfo.roomID,
+          status: "round_summary",
+        });
+        toast.info("انتهى الوقت! انتقال إلى ملخص الجولة");
+      } catch (error) {
+        console.error("Error updating room status:", error);
+      }
+    }
   };
 
   // Show loading state if data is not ready
