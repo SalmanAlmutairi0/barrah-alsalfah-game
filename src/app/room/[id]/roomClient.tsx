@@ -18,7 +18,7 @@ import { getRoundInfo } from "@/actions/round";
 import { toast } from "sonner";
 import RoundSummary from "../components/roundSummary";
 import ImposterGotCaught from "../components/imposterGuessPhase";
-import { usePlayerHeartbeat } from "@/hooks/usePlayerHeartbeat";
+import { usePlayerPresence } from "@/hooks/usePlayerPresence";
 
 type Props = {
   roomKey: string;
@@ -28,30 +28,11 @@ export default function RoomClient({ roomKey }: Props) {
   const { playerInfo, deletePlayerInfo, loading } = usePlayerInfo();
   const router = useRouter();
 
-  usePlayerHeartbeat(playerInfo.playerID);
-
-  // Each player checks for OTHER inactive players in their room
-  useEffect(() => {
-    if (!playerInfo.playerID || !playerInfo.roomID || playerInfo.roomID === 0)
-      return;
-
-    const checkOthersInterval = setInterval(async () => {
-      try {
-        await fetch("/api/cleanup-inactive-players", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            roomID: playerInfo.roomID,
-            checkerPlayerID: playerInfo.playerID,
-          }),
-        });
-      } catch (error) {
-        console.error("Error checking other players:", error);
-      }
-    }, 10000); // Every 10 seconds
-
-    return () => clearInterval(checkOthersInterval);
-  }, [playerInfo.playerID, playerInfo.roomID]);
+  usePlayerPresence(
+    playerInfo.playerID,
+    playerInfo.roomID,
+    playerInfo.playerName
+  );
 
   // if the player joined by the link, we need to check if the room key is correct
   // Only check after loading is complete to avoid redirecting due to empty initial state
