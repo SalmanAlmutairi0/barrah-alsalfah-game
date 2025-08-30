@@ -6,6 +6,7 @@ import { usePlayerInfo } from "@/hooks/usePlayerInfo";
 import RoundResultHeader from "@/components/roundResultHeader";
 import Leaderboard from "@/components/leaderboard";
 import RoundActions from "@/components/roundActions";
+import ScoringExplanation from "@/components/scoringExplanation";
 
 export default function RoundSummary() {
   const { players } = usePlayers();
@@ -18,6 +19,8 @@ export default function RoundSummary() {
         <Leaderboard players={players} />
         <RoundActions roomID={playerInfo.roomID} />
       </div>
+
+      <ScoringExplanation />
     </div>
   );
 }
