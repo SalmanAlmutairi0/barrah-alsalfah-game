@@ -6,7 +6,7 @@ import { ChatMessage } from "./types";
 import Message from "./Message";
 import { MessageCircle } from "lucide-react";
 
-interface ChatMessagesProps {
+type ChatMessagesProps = {
   messages: ChatMessage[];
   currentPlayerId: number;
 }

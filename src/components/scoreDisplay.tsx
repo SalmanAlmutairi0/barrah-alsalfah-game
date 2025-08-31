@@ -4,7 +4,7 @@ import { ArrowUp, ArrowDown, Coins, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import CountUp from "react-countup";
 
-interface ScoreDisplayProps {
+type ScoreDisplayProps = {
   currentScore: number;
   previousScore?: number;
   isLoading?: boolean;

@@ -1,4 +1,4 @@
-export interface ChatMessage {
+export type ChatMessage = {
   id: number;
   player_id: number;
   player_name: string;

@@ -3,7 +3,7 @@
 import React from "react";
 import { ChatMessage } from "./types";
 
-interface MessageProps {
+type MessageProps = {
   message: ChatMessage;
   isCurrentPlayer: boolean;
 }

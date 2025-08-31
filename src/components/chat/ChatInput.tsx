@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Loader2, Send } from "lucide-react";
 
-interface ChatInputProps {
+type ChatInputProps = {
   value: string;
   onChange: (value: string) => void;
   onSend: () => void;

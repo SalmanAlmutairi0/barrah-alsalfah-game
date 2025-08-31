@@ -4,7 +4,7 @@ import { ArrowUp, ArrowDown, TrendingUp, TrendingDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import CountUp from "react-countup";
 
-interface RoundPointsDisplayProps {
+type RoundPointsDisplayProps = {
   roundPoints: number;
   showAnimation?: boolean;
   size?: "sm" | "md" | "lg";

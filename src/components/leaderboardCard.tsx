@@ -5,12 +5,12 @@ import { Player } from "@/context/playersContext";
 import ScoreDisplay from "./scoreDisplay";
 import RoundPointsDisplay from "./roundPointsDisplay";
 
-interface LeaderboardCardProps {
+type LeaderboardCardProps = {
   player: Player;
   position: number;
   previousScore?: number;
   roundPoints?: number;
-}
+};
 
 export default function LeaderboardCard({
   player,

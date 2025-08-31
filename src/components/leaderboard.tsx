@@ -10,7 +10,7 @@ import { Trophy } from "lucide-react";
 import { Player } from "@/context/playersContext";
 import LeaderboardCard from "./leaderboardCard";
 
-interface LeaderboardProps {
+type LeaderboardProps = {
   players: Player[];
   getPreviousScore?: (playerId: number) => number | undefined;
   getRoundPoints?: (playerId: number) => number;
