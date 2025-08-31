@@ -41,7 +41,7 @@ export default function RoomClient({ roomKey }: Props) {
 
     if (playerInfo.roomKey !== roomKey || !playerInfo.roomKey) {
       console.log("room key is not correct");
-      router.push("/");
+      router.push("/join");
     }
   }, [playerInfo.roomKey, roomKey, router, loading]);
 
@@ -63,7 +63,7 @@ export default function RoomClient({ roomKey }: Props) {
           if (payload.new && payload.new.is_active === false) {
             console.log("You have been kicked!");
             deletePlayerInfo();
-            router.push("/");
+            router.push("/join");
           }
         }
       )
