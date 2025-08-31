@@ -7,7 +7,6 @@ import RoundResultHeader from "@/components/roundResultHeader";
 import Leaderboard from "@/components/leaderboard";
 import RoundActions from "@/components/roundActions";
 import ScoringExplanation from "@/components/scoringExplanation";
-import { useRoom } from "@/hooks/useRoom";
 
 export default function RoundSummary() {
   const { players, getPreviousScore, getRoundPoints } = usePlayers();
