@@ -1,5 +1,5 @@
 "use client";
-import { createRoom, joinRoom } from "@/actions/rooms";
+
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -8,21 +8,17 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { usePlayerInfo } from "@/hooks/usePlayerInfo";
-import { Loader2, LogIn, Plus, Users, ArrowLeft, Home } from "lucide-react";
+import { LogIn, Plus, Users, ArrowLeft, Home } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { toast } from "sonner";
+
+import { CreateRoomForm } from "@/components/room/CreateRoomForm";
+import { JoinRoomForm } from "@/components/room/JoinRoomForm";
 
 export default function JoinPage() {
   const { savePlayerInfo, deletePlayerInfo } = usePlayerInfo();
-  const [playerName, setPlayerName] = useState("");
-  const [roomKey, setRoomKey] = useState("");
-  const [createRoomError, setCreateRoomError] = useState("");
-  const [joinRoomError, setJoinRoomError] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [mode, setMode] = useState<"join" | "create">("join"); // Default to join mode
   const router = useRouter();
 
   useEffect(() => {
@@ -31,103 +27,26 @@ export default function JoinPage() {
     deletePlayerInfo();
   }, [deletePlayerInfo]);
 
-  const validateFields = (
-    action: string,
-    playerName: string,
-    roomKey: string
+  const handleRoomSuccess = (
+    data: {
+      playerID: number;
+      playerName: string;
+      roomKey: string;
+      roomID: number;
+    },
+    isHost: boolean
   ) => {
-    if (action === "create") {
-      if (!playerName.trim()) {
-        setCreateRoomError("الرجاء ادخال اسمك");
-        return false;
-      } else {
-        setCreateRoomError("");
-        return true;
-      }
-    }
-    if (action === "join") {
-      if (!playerName.trim() || !roomKey.trim()) {
-        setJoinRoomError("الرجاء ادخال رمز الغرفة");
-        setCreateRoomError("الرجاء ادخال اسمك");
-        return false;
-      } else {
-        setJoinRoomError("");
-        setCreateRoomError("");
-        return true;
-      }
-    }
-    return false;
-  };
+    // Save player info to local storage
+    savePlayerInfo({
+      playerID: data.playerID,
+      playerName: data.playerName,
+      roomKey: data.roomKey,
+      roomID: data.roomID,
+      isHost: isHost,
+    });
 
-  const handleCreateRoom = async () => {
-    const isValid = validateFields("create", playerName, roomKey);
-    if (!isValid) return;
-
-    try {
-      setLoading(true);
-      const roomData = await createRoom({ playerName });
-      console.log("Room created successfully:", roomData);
-
-      // Save player info to local storage
-      savePlayerInfo({
-        playerID: roomData.playerID,
-        playerName: playerName,
-        roomKey: roomData.room_key,
-        roomID: roomData.roomID,
-        isHost: true,
-      });
-
-      router.push(`/room/${roomData.room_key}`);
-    } catch (err) {
-      console.error("Failed to create room:", err);
-      setCreateRoomError("حصل خطأ أثناء إنشاء الغرفة");
-
-      toast.error("حدث خطأ", {
-        description: "حصل خطأ أثناء إنشاء الغرفة. حاول مرة أخرى.",
-        action: {
-          label: "إغلاق",
-          onClick: () => toast.dismiss(),
-        },
-        duration: 5000,
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleJoinRoom = async () => {
-    const isValid = validateFields("join", playerName, roomKey);
-    if (!isValid) return;
-
-    try {
-      setLoading(true);
-
-      const roomData = await joinRoom({ playerName, roomKey });
-
-      console.log("Joined room successfully:", roomData);
-      savePlayerInfo({
-        playerID: roomData.playerID,
-        playerName: playerName,
-        roomKey: roomData.roomkey,
-        roomID: roomData.roomID,
-        isHost: false,
-      });
-
-      router.push(`/room/${roomData.roomkey}`);
-    } catch (error) {
-      console.error("Failed to join room:", error);
-      setJoinRoomError("حصل خطأ أثناء دخول الغرفة");
-      toast.error("حدث خطأ", {
-        description: "حصل خطأ أثناء دخول الغرفة. حاول مرة أخرى.",
-        action: {
-          label: "إغلاق",
-          onClick: () => toast.dismiss(),
-        },
-        duration: 5000,
-      });
-    } finally {
-      setLoading(false);
-    }
+    // Navigate to room
+    router.push(`/room/${data.roomKey}`);
   };
 
   return (
@@ -156,95 +75,44 @@ export default function JoinPage() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
-          <div className="space-y-2">
-            <Label htmlFor="playerName" className="text-sm font-medium">
-              اسمك :
-            </Label>
-            <Input
-              id="playerName"
-              placeholder="ادخل اسمك"
-              className={`border-2 transition-all duration-200 ${
-                createRoomError
-                  ? "border-red-500 focus:border-red-500 animate-shake"
-                  : "focus:border-primary"
-              }`}
-              value={playerName}
-              onChange={(e) => setPlayerName(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  handleCreateRoom();
-                }
-              }}
-            />
-            {createRoomError && (
-              <p className="text-red-500 text-sm animate-in slide-in-from-top-2 duration-300">
-                {createRoomError}
-              </p>
-            )}
-          </div>
-
-          <div className="grid gap-3">
+          {/* Mode Toggle */}
+          <div className="grid grid-cols-2 gap-2 p-1 bg-muted rounded-lg">
             <Button
-              className="h-12 text-lg font-semibold bg-primary hover:bg-primary/90 transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl"
-              onClick={handleCreateRoom}
-              disabled={loading}
+              variant={mode === "join" ? "default" : "ghost"}
+              className={`h-10 transition-all duration-200 ${
+                mode === "join"
+                  ? "bg-primary text-primary-foreground shadow-sm"
+                  : "hover:bg-primary/70"
+              }`}
+              onClick={() => setMode("join")}
             >
-              {loading ? (
-                <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-              ) : (
-                <Plus className="w-5 h-5 mr-2" />
-              )}
-              انشاء غرفة جديدة
+              <LogIn className="w-4 h-4 mr-2" />
+              انضمام لغرفة
             </Button>
-
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t border-border" />
-              </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-background px-2 text-muted-foreground">
-                  او
-                </span>
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Input
-                placeholder="ادخل رمز الغرفة"
-                className={`border-2 transition-all duration-200 ${
-                  joinRoomError
-                    ? "border-red-500 focus:border-red-500 animate-shake"
-                    : "focus:border-accent"
-                } text-center font-mono text-lg`}
-                value={roomKey}
-                onChange={(e) => setRoomKey(e.target.value.toUpperCase())}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    handleJoinRoom();
-                  }
-                }}
-                maxLength={6}
-              />
-              {joinRoomError && (
-                <p className="text-red-500 text-sm animate-in slide-in-from-top-2 duration-300">
-                  {joinRoomError}
-                </p>
-              )}
-              <Button
-                variant="outline"
-                className="w-full h-12 text-lg font-semibold border-2 border-accent text-accent hover:bg-accent hover:text-accent-foreground transition-all duration-200 bg-transparent hover:scale-105 shadow-lg hover:shadow-xl"
-                onClick={handleJoinRoom}
-                disabled={loading}
-              >
-                {loading ? (
-                  <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                ) : (
-                  <LogIn className="w-5 h-5 mr-2" />
-                )}
-                انضمام للغرفة
-              </Button>
-            </div>
+            <Button
+              variant={mode === "create" ? "default" : "ghost"}
+              className={`h-10 transition-all duration-200 ${
+                mode === "create"
+                  ? "bg-primary text-primary-foreground shadow-sm"
+                  : "hover:bg-primary/70"
+              }`}
+              onClick={() => setMode("create")}
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              انشاء غرفة
+            </Button>
           </div>
+
+          {/* Form Components */}
+          {mode === "create" ? (
+            <CreateRoomForm
+              onSuccess={(data) => handleRoomSuccess(data, true)}
+            />
+          ) : (
+            <JoinRoomForm
+              onSuccess={(data) => handleRoomSuccess(data, false)}
+            />
+          )}
         </CardContent>
       </Card>
     </div>
