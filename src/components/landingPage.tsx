@@ -103,26 +103,26 @@ export default function LandingPage() {
   const features = [
     {
       icon: <MessageCircle className="w-8 h-8" />,
-      title: "خوض في السوالف",
-      description: "اكتشف من المحتال بينكم! لعبة ممتعة مع الربع والعيلة",
+      title: "خش بالسالفة ",
+      description: "اكتشف مين برا السالفة بينكم! لعبة ممتعة مع اخوياك والعائلة",
       color: "from-blue-500 to-cyan-500",
     },
     {
       icon: <Crown className="w-8 h-8" />,
-      title: "كن الملك",
+      title: "خلك بالصدارة",
       description: "اجمع نقاط واطلع فوق الكل في جدول المتصدرين",
       color: "from-yellow-500 to-orange-500",
     },
     {
       icon: <Zap className="w-8 h-8" />,
-      title: "سريع ومباشر",
-      description: "ما يحتاج تحميل! افتح واتحدى اصحابك على طول",
+      title: "سريع ومجاني",
+      description: "ما يحتاج تحميل! افتح واتحدى اخوياك على طول",
       color: "from-purple-500 to-pink-500",
     },
     {
       icon: <Heart className="w-8 h-8" />,
       title: "للجميع",
-      description: "مناسبة للكبير والصغير، جمعة العيلة ولمة الاصحاب",
+      description: "مناسبة للكبير والصغير، جمعة العائلة ولمة الاصحاب",
       color: "from-green-500 to-emerald-500",
     },
   ];
@@ -140,7 +140,7 @@ export default function LandingPage() {
     },
     {
       text: "حماس وضحك من أول جولة، ننصح فيها بقوة 🔥",
-      author: "الشلة المجنونة",
+      author: "محمد",
       rating: 5,
     },
   ];
@@ -148,22 +148,22 @@ export default function LandingPage() {
   const howToPlay = [
     {
       step: "1",
-      text: "اعمل غرفة وشارك الكود مع الربع",
+      text: "سو غرفة وشارك الكود مع الي معك",
       icon: <Users className="w-6 h-6" />,
     },
     {
       step: "2",
-      text: "كل واحد يختار كلمة سرية من نفس الفئة",
+      text: "اختار تصنيف الكلمات ",
       icon: <MessageCircle className="w-6 h-6" />,
     },
     {
       step: "3",
-      text: "المحتال ما يعرف الكلمة ويحاول يخفي نفسه",
+      text: "الي برا السالفة ما يعرف الكلمة ويحاول يخفي نفسه",
       icon: <Zap className="w-6 h-6" />,
     },
     {
       step: "4",
-      text: "ناقشوا وصوتوا واكتشفوا المحتال!",
+      text: "ناقشوا وصوتوا واكتشفوا مين برا السالفة!",
       icon: <Crown className="w-6 h-6" />,
     },
   ];
@@ -214,7 +214,7 @@ export default function LandingPage() {
           >
             <Button
               size="lg"
-              className="text-xl px-8 py-4 h-auto bg-gradient-to-r from-primary to-accent hover:scale-105 transition-all duration-300 shadow-2xl"
+              className="text-xl px-8 py-4 h-auto bg-gradient-to-r from-primary to-accent hover:scale-102 transition-transform duration-75 shadow-2xl"
               onClick={() => router.push("/join")}
             >
               <Play className="w-6 h-6 mr-2" />
@@ -223,7 +223,7 @@ export default function LandingPage() {
             <Button
               variant="outline"
               size="lg"
-              className="text-xl px-8 py-4 h-auto border-2 hover:scale-105 transition-all duration-300"
+              className="text-xl px-8 py-4 h-auto border-2 hover:scale-102 transition-transform duration-75"
               onClick={() =>
                 document
                   .getElementById("how-to-play")
@@ -271,23 +271,31 @@ export default function LandingPage() {
               <Card
                 key={index}
                 className={cn(
-                  "group relative overflow-hidden border-2 hover:border-primary/50 transition-all duration-500 hover:scale-105 hover:shadow-2xl",
+                  "group relative overflow-hidden border-2 hover:border-primary/50 hover:shadow-2xl",
                   isFeaturesVisible
                     ? "opacity-100 translate-y-0"
                     : "opacity-0 translate-y-10",
-                  "transition-all duration-1000"
+                  ""
                 )}
                 style={{
+                  transition:
+                    "transform 150ms ease-out, border-color 150ms ease-out, box-shadow 150ms ease-out, opacity 1000ms ease-out, translate 1000ms ease-out",
                   transitionDelay: isFeaturesVisible
                     ? `${600 + index * 200}ms`
                     : "0ms",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = "scale(1.02)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = "scale(1)";
                 }}
               >
                 <CardContent className="p-6 text-center space-y-4">
                   <div
                     className={cn(
                       "w-16 h-16 mx-auto rounded-full bg-gradient-to-r flex items-center justify-center text-white",
-                      "group-hover:scale-110 transition-transform duration-300",
+                      "group-hover:scale-105 transition-transform duration-300",
                       feature.color
                     )}
                   >
@@ -310,7 +318,7 @@ export default function LandingPage() {
         <div className="max-w-4xl mx-auto">
           <h2
             className={cn(
-              "text-4xl md:text-5xl font-bold text-center mb-4 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent transition-all duration-1000",
+              "text-4xl md:text-5xl font-bold text-center mb-4 p-2 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent transition-all duration-1000",
               isHowToPlayVisible
                 ? "opacity-100 translate-y-0"
                 : "opacity-0 translate-y-10"
@@ -334,27 +342,34 @@ export default function LandingPage() {
               <Card
                 key={index}
                 className={cn(
-                  "group relative overflow-hidden border-2 hover:border-accent/50 transition-all duration-500 hover:scale-105",
+                  "group relative overflow-hidden border-2 hover:border-accent/50",
                   isHowToPlayVisible
                     ? "opacity-100 translate-y-0"
-                    : "opacity-0 translate-y-10",
-                  "transition-all duration-1000"
+                    : "opacity-0 translate-y-10"
                 )}
                 style={{
+                  transition:
+                    "transform 150ms ease-out, border-color 150ms ease-out, box-shadow 150ms ease-out, opacity 1000ms ease-out, translate 1000ms ease-out",
                   transitionDelay: isHowToPlayVisible
                     ? `${600 + index * 300}ms`
                     : "0ms",
                 }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = "scale(1.02)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = "scale(1)";
+                }}
               >
                 <CardContent className="p-6">
                   <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-gradient-to-r from-accent to-secondary rounded-full flex items-center justify-center text-white font-bold text-xl group-hover:scale-110 transition-transform duration-300">
+                    <div className="w-12 h-12 bg-gradient-to-r from-accent to-secondary rounded-full flex items-center justify-center text-white font-bold text-xl group-hover:scale-105 transition-transform duration-300">
                       {step.step}
                     </div>
                     <div className="flex-1">
                       <p className="text-lg font-medium">{step.text}</p>
                     </div>
-                    <div className="text-accent group-hover:scale-110 transition-transform duration-300">
+                    <div className="text-accent group-hover:scale-105 transition-transform duration-300">
                       {step.icon}
                     </div>
                   </div>
@@ -436,7 +451,7 @@ export default function LandingPage() {
           <Button
             size="lg"
             variant="secondary"
-            className="text-2xl px-12 py-6 h-auto hover:scale-110 transition-all duration-300 shadow-2xl"
+            className="text-2xl px-12 py-6 h-auto hover:scale-102 transition-transform duration-75 shadow-2xl"
             onClick={() => router.push("/join")}
           >
             <Play className="w-8 h-8 mr-3" />
