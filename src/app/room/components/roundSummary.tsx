@@ -10,7 +10,7 @@ import ScoringExplanation from "@/components/scoringExplanation";
 import { useRoom } from "@/hooks/useRoom";
 
 export default function RoundSummary() {
-  const { players } = usePlayers();
+  const { players, getPreviousScore, getRoundPoints } = usePlayers();
   const { playerInfo } = usePlayerInfo();
   const [loading, setLoading] = useState(false);
 
@@ -18,8 +18,16 @@ export default function RoundSummary() {
     <div className="min-h-screen bg-gradient-to-br from-background via-card to-muted p-4">
       <div className="max-w-4xl mx-auto space-y-6">
         <RoundResultHeader />
-        <Leaderboard players={players} />
-        <RoundActions roomID={playerInfo.roomID} loading={loading} setLoading={setLoading}/>
+        <Leaderboard
+          players={players}
+          getPreviousScore={getPreviousScore}
+          getRoundPoints={getRoundPoints}
+        />
+        <RoundActions
+          roomID={playerInfo.roomID}
+          loading={loading}
+          setLoading={setLoading}
+        />
       </div>
 
       <ScoringExplanation />

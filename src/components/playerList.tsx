@@ -20,7 +20,7 @@ export default function PlayerList() {
     );
   }
 
-  if( error ) {
+  if (error) {
     return toast.error("حدث خطاء", {
       description: "حصل خطأ أثناء جلب الاعبين. حاول مرة أخرى.",
       action: {

@@ -12,9 +12,15 @@ import LeaderboardCard from "./leaderboardCard";
 
 interface LeaderboardProps {
   players: Player[];
+  getPreviousScore?: (playerId: number) => number | undefined;
+  getRoundPoints?: (playerId: number) => number;
 }
 
-export default function Leaderboard({ players }: LeaderboardProps) {
+export default function Leaderboard({
+  players,
+  getPreviousScore,
+  getRoundPoints,
+}: LeaderboardProps) {
   // Sort players by score (highest first)
   const sortedPlayers = [...players].sort((a, b) => b.score - a.score);
 
@@ -37,6 +43,8 @@ export default function Leaderboard({ players }: LeaderboardProps) {
               key={player.id}
               player={player}
               position={position}
+              previousScore={getPreviousScore?.(player.id)}
+              roundPoints={getRoundPoints?.(player.id)}
             />
           );
         })}

@@ -16,6 +16,9 @@ type PlayersContextType = {
   players: Player[];
   playersLoading: boolean;
   error?: string | null;
+  getPreviousScore: (playerId: number) => number | undefined;
+  getRoundPoints: (playerId: number) => number;
+  resetRoundPoints: () => void;
 };
 
 export const PlayersContext = createContext<PlayersContextType | undefined>(
@@ -36,6 +39,12 @@ export const PlayersProvider = ({
   const [players, setPlayers] = useState<Player[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [playersLoading, setPlayersLoading] = useState<boolean>(false);
+  const [previousScores, setPreviousScores] = useState<Map<number, number>>(
+    new Map()
+  );
+  const [roundStartScores, setRoundStartScores] = useState<Map<number, number>>(
+    new Map()
+  );
 
   useEffect(() => {
     if (!roomID) return;
@@ -75,6 +84,13 @@ export const PlayersProvider = ({
           }
 
           setPlayers(fetchedPlayers);
+
+          // Initialize round start scores for tracking round points
+          const initialScores = new Map<number, number>();
+          fetchedPlayers.forEach((player) => {
+            initialScores.set(player.id, player.score || 0);
+          });
+          setRoundStartScores(initialScores);
         }
       } catch (error) {
         console.error("Unexpected error:", error);
@@ -103,7 +119,14 @@ export const PlayersProvider = ({
 
             switch (eventType) {
               case "INSERT":
-                return [...prev, newPlayer as Player];
+                const insertedPlayer = newPlayer as Player;
+                // Set round start score for new player
+                setRoundStartScores((prevScores) => {
+                  const newScores = new Map(prevScores);
+                  newScores.set(insertedPlayer.id, insertedPlayer.score || 0);
+                  return newScores;
+                });
+                return [...prev, insertedPlayer];
 
               case "UPDATE":
                 const updated = newPlayer as Player;
@@ -117,6 +140,15 @@ export const PlayersProvider = ({
                     (p) => p.id === updated.id
                   );
                   if (existingIndex >= 0) {
+                    // Store previous score before updating
+                    const existingPlayer = prev[existingIndex];
+                    if (existingPlayer.score !== updated.score) {
+                      setPreviousScores((prevScores) => {
+                        const newScores = new Map(prevScores);
+                        newScores.set(updated.id, existingPlayer.score);
+                        return newScores;
+                      });
+                    }
                     // Player exists, update them
                     return prev.map((p) => (p.id === updated.id ? updated : p));
                   } else {
@@ -141,8 +173,40 @@ export const PlayersProvider = ({
     };
   }, [roomID, currentPlayerID]);
 
+  const getPreviousScore = (playerId: number): number | undefined => {
+    return previousScores.get(playerId);
+  };
+
+  const getRoundPoints = (playerId: number): number => {
+    const currentPlayer = players.find((p) => p.id === playerId);
+    const roundStartScore = roundStartScores.get(playerId);
+
+    if (!currentPlayer || roundStartScore === undefined) {
+      return 0;
+    }
+
+    return (currentPlayer.score || 0) - roundStartScore;
+  };
+
+  const resetRoundPoints = () => {
+    const newRoundStartScores = new Map<number, number>();
+    players.forEach((player) => {
+      newRoundStartScores.set(player.id, player.score || 0);
+    });
+    setRoundStartScores(newRoundStartScores);
+  };
+
   return (
-    <PlayersContext.Provider value={{ players, playersLoading, error }}>
+    <PlayersContext.Provider
+      value={{
+        players,
+        playersLoading,
+        error,
+        getPreviousScore,
+        getRoundPoints,
+        resetRoundPoints,
+      }}
+    >
       {children}
     </PlayersContext.Provider>
   );
