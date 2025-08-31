@@ -24,6 +24,9 @@ export default function LandingPage() {
   const [isHowToPlayVisible, setIsHowToPlayVisible] = useState(false);
 
   useEffect(() => {
+    // Ensure page starts at the top on refresh
+    window.scrollTo(0, 0);
+
     setIsHeroVisible(true);
 
     const interval = setInterval(() => {
@@ -86,9 +89,9 @@ export default function LandingPage() {
         observer.observe(howToPlaySection);
       }
 
-      // Also check immediately
+      // Also check immediately after ensuring scroll position is correct
       handleScroll();
-    }, 100);
+    }, 300);
 
     return () => {
       clearInterval(interval);
