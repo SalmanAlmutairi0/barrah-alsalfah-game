@@ -198,10 +198,11 @@ export default function LandingPage() {
               <Sparkles className="absolute -bottom-2 -left-2 w-6 h-6 text-pink-500 animate-pulse delay-1000" />
             </div>
             <p className="text-xl md:text-2xl text-muted-foreground animate-in slide-in-from-bottom-7 duration-1000 delay-300">
-              لعبة الكشف عن المحتال الأكثر إثارة! 🕵️‍♂️
+              لعبة الكشف عن مين برا السالفة الرهيبة! 🕵️‍♂️
             </p>
             <p className="text-lg md:text-xl text-muted-foreground animate-in slide-in-from-bottom-9 duration-1000 delay-500">
-              اجمع الربع واكتشف من المحتال بينكم في أجواء مليانة ضحك وحماس
+              اجمع اخوياك او العائلة واكتشف مين برا السالفة بينكم في أجواء
+              مليانة ضحك وحماس
             </p>
           </div>
 
