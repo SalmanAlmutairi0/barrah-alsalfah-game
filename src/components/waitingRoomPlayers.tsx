@@ -4,9 +4,11 @@ import { Badge } from "./ui/badge";
 import { Users, Sparkles } from "lucide-react";
 import PlayerList from "./playerList";
 import { usePlayers } from "@/hooks/usePlayers";
+import { useRoom } from "@/hooks/useRoom";
 
 export default function WaitingRoomPlayers() {
   const { players } = usePlayers();
+  const {room} = useRoom()
 
   return (
     <Card className="border-2 border-accent/20 shadow-xl">
@@ -18,7 +20,7 @@ export default function WaitingRoomPlayers() {
             </div>
             <span>الأعبين ({players.length})</span>
           </div>
-          {players.length >= 3 && (
+          {(players.length >= 3 && room?.status === "waiting_for_players") && (
             <Badge variant="secondary" className="gap-1 text-xs sm:text-sm self-start sm:self-auto">
               <Sparkles className="w-3 h-3 sm:w-4 sm:h-4" />
               جاهز للبدء

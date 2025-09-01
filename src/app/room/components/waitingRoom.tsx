@@ -23,8 +23,8 @@ function HostGameControls({
   return (
     <div className="space-y-3">
       {players.length < 3 && (
-        <Card className="border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-950/30">
-          <CardContent className="flex items-center gap-2 sm:gap-3 py-2 sm:py-3">
+        <Card className="border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-950/30 h-20">
+          <CardContent className="flex items-center gap-2 sm:gap-3 py-2 sm:py-3 h-full">
             <div className="w-5 h-5 sm:w-6 sm:h-6 bg-amber-500 rounded-full flex items-center justify-center">
               <Users className="w-3 h-3 text-white" />
             </div>
