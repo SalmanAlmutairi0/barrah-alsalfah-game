@@ -2,6 +2,7 @@
 
 import React, { createContext, useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
+import { getMessagesAction, sendMessageAction } from "@/actions/messages";
 
 export type Message = {
   id: number;
@@ -49,17 +50,18 @@ export const MessagesProvider = ({
   ) => {
     try {
       setSendingMessage(true);
-      const { error } = await supabase.from("messages").insert({
-        player_id: playerId,
-        player_name: playerName,
-        message: messageText,
-        round_id: roundID,
-      });
+      await sendMessageAction({ playerId, playerName, messageText, roundID });
+      // const { error } = await supabase.from("messages").insert({
+      //   player_id: playerId,
+      //   player_name: playerName,
+      //   message: messageText,
+      //   round_id: roundID,
+      // });
 
-      if (error) {
-        console.error("Failed to send message:", error);
-        setError("حصل خطأ أثناء إرسال الرسالة.");
-      }
+      // if (error) {
+      //   console.error("Failed to send message:", error);
+      //   setError("حصل خطأ أثناء إرسال الرسالة.");
+      // }
     } catch (error) {
       console.error("Unexpected error sending message:", error);
       setError("حصل خطأ أثناء إرسال الرسالة.");
@@ -75,18 +77,20 @@ export const MessagesProvider = ({
       setMessagesLoading(true);
       setError(null);
       try {
-        const { data, error } = await supabase
-          .from("messages")
-          .select("*")
-          .eq("round_id", roundID)
-          .order("created_at", { ascending: true });
+        const data = await getMessagesAction({ roundID });
+        setMessages(data || []);
+        // const { data, error } = await supabase
+        //   .from("messages")
+        //   .select("*")
+        //   .eq("round_id", roundID)
+        //   .order("created_at", { ascending: true });
 
-        if (error) {
-          console.error("Failed to fetch messages:", error);
-          setError("حصل خطأ أثناء جلب الرسائل.");
-        } else {
-          setMessages(data || []);
-        }
+        // if (error) {
+        //   console.error("Failed to fetch messages:", error);
+        //   setError("حصل خطأ أثناء جلب الرسائل.");
+        // } else {
+        //   setMessages(data || []);
+        // }
       } catch (error) {
         console.error("Unexpected error:", error);
         setError("حصل خطأ أثناء جلب الرسائل.");

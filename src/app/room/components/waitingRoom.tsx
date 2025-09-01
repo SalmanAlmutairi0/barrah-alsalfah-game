@@ -39,7 +39,7 @@ function HostGameControls({
 
       <Button
         className="w-full h-12 sm:h-14 text-lg sm:text-xl font-bold bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 transition-all duration-200 transform hover:scale-[1.01] disabled:transform-none disabled:opacity-50"
-        disabled={loading || players.length < 3}
+        disabled={loading || players.length < 1}
         onClick={onGameStart}
       >
         {loading ? (
