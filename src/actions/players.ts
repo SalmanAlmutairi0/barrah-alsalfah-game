@@ -186,3 +186,39 @@ export const updateImposterCaughtScore = async (
     console.error("Error updating imposter score:", error);
   }
 };
+
+export const getPlayersAction = async ({ roomID }: { roomID: number }) => {
+  const { data, error } = await supabase
+    .from("players")
+    .select("*")
+    .eq("room_id", roomID)
+    .eq("is_active", true);
+
+  if (error) {
+    console.error("Failed to fetch players:", error);
+    throw new Error("حصل خطأ أثناء جلب الاعبين.");
+  }
+
+  return data ;
+};
+
+
+
+export const getPlayerAction = async ({
+  currentPlayerID,
+}: {
+  currentPlayerID: number;
+}) => {
+  const { data: currentPlayerData, error } = await supabase
+    .from("players")
+    .select("*")
+    .eq("id", currentPlayerID)
+    .single();
+
+  if (error) {
+    console.error("Failed to fetch player:", error);
+    throw new Error("حصل خطأ أثناء جلب الاعب.");
+  }
+
+  return currentPlayerData;
+};

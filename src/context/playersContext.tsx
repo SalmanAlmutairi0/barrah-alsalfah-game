@@ -2,6 +2,7 @@
 
 import React, { createContext, useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
+import { getPlayerAction, getPlayersAction } from "@/actions/players";
 
 export type Player = {
   id: number;
@@ -18,7 +19,6 @@ type PlayersContextType = {
   error?: string | null;
   getPreviousScore: (playerId: number) => number | undefined;
   getRoundPoints: (playerId: number) => number;
-  resetRoundPoints: () => void;
 };
 
 export const PlayersContext = createContext<PlayersContextType | undefined>(
@@ -54,44 +54,32 @@ export const PlayersProvider = ({
       setPlayersLoading(true);
       setError(null);
       try {
-        const { data, error } = await supabase
-          .from("players")
-          .select("*")
-          .eq("room_id", roomID)
-          .eq("is_active", true);
+        const data = await getPlayersAction({ roomID });
+        const fetchedPlayers = data || [];
 
-        if (error) {
-          console.error("Failed to fetch players:", error);
-          setError("حصل خطأ أثناء جلب الاعبين.");
-        } else {
-          const fetchedPlayers = data || [];
-
-          // If current player is not in the results (race condition),
-          // fetch their info and add them
-          if (
-            currentPlayerID &&
-            !fetchedPlayers.find((p) => p.id === currentPlayerID)
-          ) {
-            const { data: currentPlayerData } = await supabase
-              .from("players")
-              .select("*")
-              .eq("id", currentPlayerID)
-              .single();
-
-            if (currentPlayerData) {
-              fetchedPlayers.push(currentPlayerData);
-            }
-          }
-
-          setPlayers(fetchedPlayers);
-
-          // Initialize round start scores for tracking round points
-          const initialScores = new Map<number, number>();
-          fetchedPlayers.forEach((player) => {
-            initialScores.set(player.id, player.score || 0);
+        // If current player is not in the results (race condition),
+        // fetch their info and add them
+        if (
+          currentPlayerID &&
+          !fetchedPlayers.find((p) => p.id === currentPlayerID)
+        ) {
+          const currentPlayerData = await getPlayerAction({
+            currentPlayerID,
           });
-          setRoundStartScores(initialScores);
+          if (currentPlayerData) {
+            fetchedPlayers.push(currentPlayerData);
+          }
         }
+
+        setPlayers(fetchedPlayers);
+
+        // Initialize round start scores for tracking round points
+        const initialScores = new Map<number, number>();
+        fetchedPlayers.forEach((player) => {
+          initialScores.set(player.id, player.score || 0);
+        });
+
+        setRoundStartScores(initialScores);
       } catch (error) {
         console.error("Unexpected error:", error);
         setError("حصل خطأ أثناء جلب الاعبين.");
@@ -188,13 +176,7 @@ export const PlayersProvider = ({
     return (currentPlayer.score || 0) - roundStartScore;
   };
 
-  const resetRoundPoints = () => {
-    const newRoundStartScores = new Map<number, number>();
-    players.forEach((player) => {
-      newRoundStartScores.set(player.id, player.score || 0);
-    });
-    setRoundStartScores(newRoundStartScores);
-  };
+
 
   return (
     <PlayersContext.Provider
@@ -204,7 +186,6 @@ export const PlayersProvider = ({
         error,
         getPreviousScore,
         getRoundPoints,
-        resetRoundPoints,
       }}
     >
       {children}
