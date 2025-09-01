@@ -65,9 +65,14 @@ export const joinRoom = async ({ playerName, roomKey }: JoinRoomParams) => {
       .eq("room_key", roomKey)
       .single();
 
-    if (roomError || !roomData) {
+    if (!roomData) {
+      console.error("Room not found");
+      throw new Error("الغرفة غير موجودة");
+    }
+
+    if (roomError) {
       console.error("Error finding room:", roomError);
-      throw new Error("Room not found");
+      throw new Error("Error finding room");
     }
 
     const playerID = await createPlayer({

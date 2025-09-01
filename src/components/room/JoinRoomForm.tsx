@@ -2,7 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Loader2, LogIn } from "lucide-react";
+import { Loader2, LogIn, X } from "lucide-react";
 import { useState } from "react";
 import { joinRoom } from "@/actions/rooms";
 import { toast } from "sonner";
@@ -48,10 +48,10 @@ export function JoinRoomForm({ onSuccess }: JoinRoomFormProps) {
       });
     } catch (err) {
       console.error("Failed to join room:", err);
-      setError("حصل خطأ أثناء دخول الغرفة");
+      setError((err as Error).message);
 
-      toast.error("حدث خطأ", {
-        description: "حصل خطأ أثناء دخول الغرفة. حاول مرة أخرى.",
+      toast.warning("حدث خطأ", {
+        description: (err as Error).message,
         action: {
           label: "إغلاق",
           onClick: () => toast.dismiss(),
@@ -117,7 +117,6 @@ export function JoinRoomForm({ onSuccess }: JoinRoomFormProps) {
           value={roomKey}
           onChange={(e) => setRoomKey(e.target.value.toUpperCase())}
           onKeyDown={(e) => handleKeyDown(e, "roomKey")}
-          maxLength={6}
         />
       </div>
 
