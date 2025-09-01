@@ -77,18 +77,18 @@ export default function RoleRevealedView({
           <>
             <p className="font-semibold text-destructive">مهمتك:</p>
             <p className="text-sm text-muted-foreground">
-              أنت لا تعرف الكلمة السرية. استمع جيدًا للآخرين وحاول أن تندمج
-              بينهم. تجنب أن يتم اكتشافك!
+              أنت ماتعرف الكلمة. استمع زين للي معك وحاول انك تندمج
+              بينهم. عشان ما يكشفونك!
             </p>
           </>
         ) : (
           <>
-            <p className="font-semibold text-primary">الكلمة السرية:</p>
+            <p className="font-semibold text-primary">الكلمة:</p>
             <p className="text-2xl font-bold text-center py-2 px-4 bg-primary/10 rounded-lg border-2 border-primary/20">
               {secretWord}
             </p>
             <p className="text-sm text-muted-foreground">
-              ناقش هذه الكلمة مع الآخرين بدون ماتوضح. وحاول تكشف مين برا السالفة
+              ناقش هذه الكلمة مع الي معك بدون ماتوضح. وحاول تكشف مين برا السالفة
               بينهم!
             </p>
           </>
