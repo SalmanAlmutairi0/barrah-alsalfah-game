@@ -5,20 +5,25 @@ import WaitingRoomHeader from "@/components/waitingRoomHeader";
 import WaitingRoomPlayers from "@/components/waitingRoomPlayers";
 import { usePlayers } from "@/hooks/usePlayers";
 import { usePlayerInfo } from "@/hooks/usePlayerInfo";
-import React from "react";
+import React, { useState } from "react";
+import { ArrowRight, Loader2, Play } from "lucide-react";
 
 export default function WaitingRoom() {
   const { players } = usePlayers();
   const { playerInfo } = usePlayerInfo();
+  const [loading, setLoading] = useState(false);
 
   const handleGameStart = async () => {
     try {
+      setLoading(true);
       await chnageRoomStatus({
         roomID: Number(players[0].room_id),
         status: "catagory_selection",
       });
     } catch (error) {
       console.log(error);
+    } finally {
+      setLoading(false);
     }
   };
   return (
@@ -31,7 +36,14 @@ export default function WaitingRoom() {
           disabled={players.length < 1}
           onClick={handleGameStart}
         >
-          بدء اللعبة
+          {loading ? (
+            <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+          ) : (
+            <>
+              <ArrowRight className="w-5 h-5 mr-2" />
+              كمل الى اختيار التصنيف
+            </>
+          )}
         </Button>
       )}
     </div>
