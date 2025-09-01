@@ -38,8 +38,25 @@ export const createPlayer = async ({
   return playerID;
 };
 
-export const deletePlayer = async (playerID: number) => {
+const checkIfPlayersIsHost = async (playerID: number) => {
+  const { data, error } = await supabase
+    .from("players")
+    .select("is_host")
+    .eq("id", playerID)
+    .single();
+
+  if (error) throw error;
+  return data.is_host;
+};
+
+export const deletePlayer = async (playerID: number, roomID: number) => {
   try {
+    const isHost = await checkIfPlayersIsHost(playerID);
+
+    if (isHost) {
+      await markAllPlayersInactive(roomID);
+    }
+
     const { error } = await supabase
       .from("players")
       .update({ is_active: false })

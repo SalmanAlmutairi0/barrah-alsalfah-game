@@ -53,7 +53,7 @@ export function usePlayerPresence(
         if (leftPlayerID !== playerID) {
           // Add a grace period before marking as inactive (for page refreshes)
           const timer = setTimeout(() => {
-            markPlayerInactive(leftPlayerID);
+            markPlayerInactive(leftPlayerID, roomID);
             disconnectionTimersRef.current.delete(leftPlayerID);
           }, 5000); // 5 second grace period
 
@@ -116,27 +116,12 @@ export function usePlayerPresence(
     }
   };
 
-  const markPlayerInactive = async (inactivePlayerID: number) => {
+  const markPlayerInactive = async (
+    inactivePlayerID: number,
+    roomID: number
+  ) => {
     try {
-      // First check if the leaving player is the host
-      const { data: playerData, error: fetchError } = await supabase
-        .from("players")
-        .select("is_host")
-        .eq("id", inactivePlayerID)
-        .single();
-
-      if (fetchError) {
-        console.error("Error fetching player data:", fetchError);
-        return;
-      }
-
-      if (playerData?.is_host && roomID) {
-        // If the host is leaving, mark all players in the room as inactive
-        await markAllPlayersInactive(roomID);
-      } else {
-        // If it's a regular player, only mark them as inactive
-        await deletePlayer(inactivePlayerID);
-      }
+      await deletePlayer(inactivePlayerID, roomID);
     } catch (error) {
       console.error("Error updating player status:", error);
     }

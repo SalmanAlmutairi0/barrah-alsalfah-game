@@ -15,16 +15,24 @@ import { useEffect, useState } from "react";
 
 import { CreateRoomForm } from "@/components/room/CreateRoomForm";
 import { JoinRoomForm } from "@/components/room/JoinRoomForm";
+import { deletePlayer } from "@/actions/players";
 
 export default function JoinPage() {
-  const { savePlayerInfo, deletePlayerInfo } = usePlayerInfo();
+  const { savePlayerInfo, deletePlayerInfo, playerInfo } = usePlayerInfo();
   const [mode, setMode] = useState<"join" | "create">("join"); // Default to join mode
   const router = useRouter();
 
   useEffect(() => {
     // Only clear player info when explicitly coming to join page
     // This allows users to refresh room pages without losing session
-    deletePlayerInfo();
+    const clearPlayerInfo = async () => {
+      if (playerInfo.playerID) {
+        await deletePlayer(playerInfo.playerID, playerInfo.roomID);
+      }
+      deletePlayerInfo();
+    };
+
+    clearPlayerInfo;
   }, [deletePlayerInfo]);
 
   const handleRoomSuccess = (

@@ -62,14 +62,8 @@ export default function GameFinished() {
     try {
       setLeaveLoading(true);
 
-      // If the player is the host, mark all players in the room as inactive
-      if (playerInfo.isHost && playerInfo.roomID) {
-        await markAllPlayersInactive(playerInfo.roomID);
-        toast.success("تم الخروج من الغرفة وإخراج جميع اللاعبين");
-      } else {
-        await deletePlayer(playerInfo.playerID);
-        toast.success("تم الخروج من الغرفة بنجاح");
-      }
+      await deletePlayer(playerInfo.playerID, playerInfo.roomID);
+      toast.success("تم الخروج من الغرفة بنجاح");
     } catch (error) {
       console.error("Error leaving room:", error);
       toast.error("حدث خطأ أثناء الخروج من الغرفة");
