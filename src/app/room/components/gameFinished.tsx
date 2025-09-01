@@ -7,9 +7,8 @@ import { Badge } from "@/components/ui/badge";
 import Leaderboard from "@/components/leaderboard";
 import { usePlayers } from "@/hooks/usePlayers";
 import { usePlayerInfo } from "@/hooks/usePlayerInfo";
-import { useRoom } from "@/hooks/useRoom";
 import { chnageRoomStatus } from "@/actions/rooms";
-import { deletePlayer, markAllPlayersInactive } from "@/actions/players";
+import { deletePlayer } from "@/actions/players";
 import {
   Crown,
   Trophy,
@@ -18,14 +17,11 @@ import {
   Loader2,
   Sparkles,
 } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 export default function GameFinished() {
-  const { players } = usePlayers();
-  const { playerInfo, deletePlayerInfo } = usePlayerInfo();
-  const { room } = useRoom();
-  const router = useRouter();
+  const { players, playersLoading } = usePlayers();
+  const { playerInfo } = usePlayerInfo();
   const [restartLoading, setRestartLoading] = useState(false);
   const [leaveLoading, setLeaveLoading] = useState(false);
 
@@ -72,7 +68,7 @@ export default function GameFinished() {
     }
   };
 
-  if (!winner) {
+  if (!winner || playersLoading) {
     return (
       <div className="flex justify-center items-center h-screen">
         <Loader2 className="animate-spin size-14" />
