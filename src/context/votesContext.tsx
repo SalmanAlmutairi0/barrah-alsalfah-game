@@ -2,6 +2,7 @@
 
 import React, { createContext, useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
+import { getVotesAction, sendVoteAction } from "@/actions/votes";
 
 export type Vote = {
   id: number;
@@ -18,8 +19,6 @@ type VotesContextType = {
   submitVote: (voterId: number, targetId: number) => Promise<void>;
   hasUserVoted: (userId: number) => boolean;
   getVoteCount: (playerId: number) => number;
-  getUserVote: (userId: number) => Vote | null;
-  deleteVote: (voteId: number) => Promise<void>;
 };
 
 export const VotesContext = createContext<VotesContextType | undefined>(
@@ -53,47 +52,10 @@ export function VotesProvider({
         throw new Error("مايمديك تصوت على نفسك");
       }
 
-      const { data, error } = await supabase
-        .from("votes")
-        .insert({
-          round_id: roundID,
-          voter_id: voterId,
-          target_id: targetId,
-        })
-        .select("id, round_id, voter_id, target_id, created_at")
-        .single();
-
-      if (error) {
-        console.error("لم يتم إرسال الصوت:", error);
-        throw new Error(error.message);
-      }
-
-      // Real-time will handle the state update, but we can also update locally for immediate feedback
-      // setVotes(prev => [...prev, data]);
+      await sendVoteAction({ roundID, voterId, targetId });
     } catch (err) {
       const errorMessage =
         err instanceof Error ? err.message : "لم يتم إرسال الصوت";
-      setError(errorMessage);
-      throw err;
-    }
-  };
-
-  // Delete a vote (if needed for vote changes)
-  const deleteVote = async (voteId: number) => {
-    try {
-      setError(null);
-
-      const { error } = await supabase.from("votes").delete().eq("id", voteId);
-
-      if (error) {
-        console.error("لم يتم حذف الصوت:", error);
-        throw new Error(error.message);
-      }
-
-      // Real-time will handle the state update
-    } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : "لم يتم حذف الصوت";
       setError(errorMessage);
       throw err;
     }
@@ -109,11 +71,6 @@ export function VotesProvider({
     return votes.filter((vote) => vote.target_id === playerId).length;
   };
 
-  // Get user's vote if they have voted
-  const getUserVote = (userId: number): Vote | null => {
-    return votes.find((vote) => vote.voter_id === userId) || null;
-  };
-
   // Initial fetch
   useEffect(() => {
     if (!roundID) return;
@@ -122,17 +79,12 @@ export function VotesProvider({
       setVotesLoading(true);
       setError(null);
 
-      const { data, error } = await supabase
-        .from("votes")
-        .select("id, round_id, voter_id, target_id, created_at")
-        .eq("round_id", roundID)
-        .order("created_at", { ascending: true });
-
-      if (error) {
-        console.error("لم يتم جلب الصوتات:", error);
-        setError(error.message);
-      } else {
+      try {
+        const data = await getVotesAction({ roundID });
         setVotes(data || []);
+      } catch (error) {
+        console.error("لم يتم جلب الصوتات:", error);
+        setError(error instanceof Error ? error.message : "لم يتم جلب الصوتات");
       }
 
       setVotesLoading(false);
@@ -187,8 +139,6 @@ export function VotesProvider({
         submitVote,
         hasUserVoted,
         getVoteCount,
-        getUserVote,
-        deleteVote,
       }}
     >
       {children}
