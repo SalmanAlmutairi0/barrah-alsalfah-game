@@ -23,6 +23,14 @@ export default function RoundActions({
     try {
       setLoading(true);
 
+      if(room?.round !== undefined && room?.round + 1 == 3 ){
+        await chnageRoomStatus({
+          roomID: roomID,
+          status: "finished",
+        });
+        return;
+      }
+
       // Increment the round number
       if (room?.round !== undefined) {
         await updateRound({
@@ -47,6 +55,7 @@ export default function RoundActions({
     <Card>
       <CardContent className="pt-6">
         <div className="flex flex-col gap-3">
+      
           <Button
             className="w-full h-10 sm:h-12 text-base sm:text-lg font-semibold"
             variant="default"

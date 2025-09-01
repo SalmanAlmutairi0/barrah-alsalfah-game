@@ -58,7 +58,18 @@ type JoinRoomParams = {
 };
 export const joinRoom = async ({ playerName, roomKey }: JoinRoomParams) => {
   try {
-    //TODO: find the room by room key
+    // check if the room status is not finsished or not
+    const { data: roomStatusData, error: roomStatusError } = await supabase
+      .from("rooms")
+      .select("status")
+      .eq("room_key", roomKey)
+      .single();
+
+    if (roomStatusData?.status === "finished") {
+      console.error("Room is finished");
+      throw new Error("الغرفة منتهية");
+    }
+
     const { data: roomData, error: roomError } = await supabase
       .from("rooms")
       .select("id")

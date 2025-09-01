@@ -19,6 +19,7 @@ import { toast } from "sonner";
 import RoundSummary from "../components/roundSummary";
 import ImposterGotCaught from "../components/imposterGuessPhase";
 import { usePlayerPresence } from "@/hooks/usePlayerPresence";
+import GameFinished from "../components/gameFinished";
 
 type Props = {
   roomKey: string;
@@ -97,7 +98,7 @@ export default function RoomClient({ roomKey }: Props) {
         currentPlayerID={playerInfo.playerID}
       >
         <RenderRoomByStatus />
-        {/* <ImposterGotCaught /> */}
+        {/* <GameFinished /> */}
       </PlayersProvider>
     </RoomsProvider>
   );
@@ -127,6 +128,8 @@ const RenderRoomByStatus = () => {
       return <ImposterGotCaught />;
     case "round_summary":
       return <RoundSummary />;
+    case "finished":
+      return <GameFinished />;
     // default:
     //   return <div>Unknown status</div>;
   }

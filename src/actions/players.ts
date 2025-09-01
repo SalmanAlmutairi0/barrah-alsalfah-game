@@ -55,6 +55,23 @@ export const deletePlayer = async (playerID: number) => {
   }
 };
 
+export const markAllPlayersInactive = async (roomID: number) => {
+  try {
+    const { error } = await supabase
+      .from("players")
+      .update({ is_active: false })
+      .eq("room_id", roomID);
+
+    if (error) throw error;
+
+    console.log(`All players in room ${roomID} have been marked as inactive.`);
+    return true;
+  } catch (error) {
+    console.error("Error marking all players inactive:", error);
+    throw error;
+  }
+};
+
 export const updatePlayerScores = async (
   imposterID: number,
   mostVotedPlayerID: number | null,

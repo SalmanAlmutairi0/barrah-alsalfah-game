@@ -22,11 +22,13 @@ export default function RoundSummary() {
           getPreviousScore={getPreviousScore}
           getRoundPoints={getRoundPoints}
         />
-        <RoundActions
-          roomID={playerInfo.roomID}
-          loading={loading}
-          setLoading={setLoading}
-        />
+        {playerInfo.isHost && (
+          <RoundActions
+            roomID={playerInfo.roomID}
+            loading={loading}
+            setLoading={setLoading}
+          />
+        )}
       </div>
 
       <ScoringExplanation />
