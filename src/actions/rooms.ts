@@ -139,3 +139,18 @@ export const updateRound = async ({ roomID, round }: UpdateRoundParams) => {
 
   return true;
 };
+
+export const getRoomInfo = async (roomID: number) => {
+  const { data, error } = await supabase
+    .from("rooms")
+    .select("id, room_key, status, host_id, selected_catagory, round")
+    .eq("id", roomID)
+    .single();
+
+  if (error) {
+    console.error("Error fetching room info:", error);
+    throw error;
+  }
+
+  return data;
+};

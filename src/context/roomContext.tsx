@@ -1,5 +1,6 @@
 "use client";
 
+import { getRoomInfo } from "@/actions/rooms";
 import { supabase } from "@/lib/supabaseClient";
 import React, { createContext, useEffect, useState } from "react";
 
@@ -46,13 +47,9 @@ export function RoomsProvider({
     if (!roomID) return;
     const fetchRoom = async () => {
       setLoading(true);
-      const { data, error } = await supabase
-        .from("rooms")
-        .select("id, room_key, status, host_id, selected_catagory, round")
-        .eq("id", roomID)
-        .single();
-
-      if (!error) setRoom(data as Room);
+     
+      const data = await getRoomInfo(roomID);
+      setRoom(data as Room);
       setLoading(false);
     };
 
