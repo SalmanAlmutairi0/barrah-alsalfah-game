@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import { RealtimeChannel } from "@supabase/supabase-js";
+import { markAllPlayersInactive, deletePlayer } from "@/actions/players";
 
 export function usePlayerPresence(
   playerID: number | null | undefined,
@@ -117,17 +118,24 @@ export function usePlayerPresence(
 
   const markPlayerInactive = async (inactivePlayerID: number) => {
     try {
-      const { error } = await supabase
+      // First check if the leaving player is the host
+      const { data: playerData, error: fetchError } = await supabase
         .from("players")
-        .update({ is_active: false })
-        .eq("id", inactivePlayerID);
+        .select("is_host")
+        .eq("id", inactivePlayerID)
+        .single();
 
-      if (error) {
-        console.error("Error marking player inactive:", error);
+      if (fetchError) {
+        console.error("Error fetching player data:", fetchError);
+        return;
+      }
+
+      if (playerData?.is_host && roomID) {
+        // If the host is leaving, mark all players in the room as inactive
+        await markAllPlayersInactive(roomID);
       } else {
-        console.log(
-          `Marked player ${inactivePlayerID} as inactive due to presence leave`
-        );
+        // If it's a regular player, only mark them as inactive
+        await deletePlayer(inactivePlayerID);
       }
     } catch (error) {
       console.error("Error updating player status:", error);
