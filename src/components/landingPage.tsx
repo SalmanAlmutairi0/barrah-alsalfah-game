@@ -1,6 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import React, { useState, useEffect, useRef } from "react";
 import Hero from "./landing/hero";
 import Features from "./landing/features";
 import HowToPlay from "./landing/howToPlay";
@@ -8,11 +7,14 @@ import Testimonials, { testimonials } from "./landing/testimonials";
 import Footer from "./landing/footer";
 
 export default function LandingPage() {
-  const router = useRouter();
   const [currentTestimonial, setCurrentTestimonial] = useState(0);
   const [isHeroVisible, setIsHeroVisible] = useState(false);
   const [isFeaturesVisible, setIsFeaturesVisible] = useState(false);
   const [isHowToPlayVisible, setIsHowToPlayVisible] = useState(false);
+
+  // Use refs to avoid stale closures in event handlers
+  const isFeaturesVisibleRef = useRef(false);
+  const isHowToPlayVisibleRef = useRef(false);
 
   useEffect(() => {
     // Ensure page starts at the top on refresh
@@ -29,17 +31,25 @@ export default function LandingPage() {
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            if (entry.target.id === "features-section") {
+            if (
+              entry.target.id === "features-section" &&
+              !isFeaturesVisibleRef.current
+            ) {
+              isFeaturesVisibleRef.current = true;
               setIsFeaturesVisible(true);
-            } else if (entry.target.id === "how-to-play") {
+            } else if (
+              entry.target.id === "how-to-play" &&
+              !isHowToPlayVisibleRef.current
+            ) {
+              isHowToPlayVisibleRef.current = true;
               setIsHowToPlayVisible(true);
             }
           }
         });
       },
       {
-        threshold: 0.1,
-        rootMargin: "0px 0px -100px 0px", // Trigger 100px before the element enters viewport
+        threshold: 0.3, // Trigger when 30% of the element is visible
+        rootMargin: "0px 0px -200px 0px", // Only trigger when element is actually entering viewport
       }
     );
 
@@ -49,18 +59,32 @@ export default function LandingPage() {
       const featuresSection = document.getElementById("features-section");
       const howToPlaySection = document.getElementById("how-to-play");
 
-      if (featuresSection && !isFeaturesVisible) {
+      if (featuresSection && !isFeaturesVisibleRef.current) {
         const rect = featuresSection.getBoundingClientRect();
-        const isVisible = rect.top < window.innerHeight && rect.bottom > 0;
-        if (isVisible) {
+        const viewportHeight = window.innerHeight;
+        // Only trigger when at least 30% of the section is visible and it's properly in the viewport
+        const visibleHeight =
+          Math.min(rect.bottom, viewportHeight) - Math.max(rect.top, 0);
+        const sectionHeight = rect.height;
+        const visibilityRatio = Math.max(0, visibleHeight) / sectionHeight;
+
+        if (visibilityRatio >= 0.3 && rect.top < viewportHeight - 200) {
+          isFeaturesVisibleRef.current = true;
           setIsFeaturesVisible(true);
         }
       }
 
-      if (howToPlaySection && !isHowToPlayVisible) {
+      if (howToPlaySection && !isHowToPlayVisibleRef.current) {
         const rect = howToPlaySection.getBoundingClientRect();
-        const isVisible = rect.top < window.innerHeight && rect.bottom > 0;
-        if (isVisible) {
+        const viewportHeight = window.innerHeight;
+        // Only trigger when at least 30% of the section is visible and it's properly in the viewport
+        const visibleHeight =
+          Math.min(rect.bottom, viewportHeight) - Math.max(rect.top, 0);
+        const sectionHeight = rect.height;
+        const visibilityRatio = Math.max(0, visibleHeight) / sectionHeight;
+
+        if (visibilityRatio >= 0.3 && rect.top < viewportHeight - 200) {
+          isHowToPlayVisibleRef.current = true;
           setIsHowToPlayVisible(true);
         }
       }
@@ -80,8 +104,10 @@ export default function LandingPage() {
         observer.observe(howToPlaySection);
       }
 
-      // Also check immediately after ensuring scroll position is correct
-      handleScroll();
+      // Only check scroll if user has actually scrolled from the top
+      if (window.scrollY > 100) {
+        handleScroll();
+      }
     }, 300);
 
     return () => {
@@ -102,7 +128,7 @@ export default function LandingPage() {
       </div>
 
       {/* Hero Section */}
-      <Hero isHeroVisible={isHeroVisible} router={router} />
+      <Hero isHeroVisible={isHeroVisible} />
 
       {/* Features Section */}
       <Features isFeaturesVisible={isFeaturesVisible} />
@@ -118,7 +144,7 @@ export default function LandingPage() {
       />
 
       {/* footer */}
-      <Footer router={router} />
+      <Footer />
     </div>
   );
 }

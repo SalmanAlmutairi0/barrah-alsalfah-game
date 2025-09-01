@@ -2,14 +2,15 @@ import { ArrowDown, MessageCircle, Play, Sparkles } from 'lucide-react';
 import React from 'react'
 import { Button } from '../ui/button';
 import { cn } from '@/lib/utils';
+import { useRouter } from 'next/navigation';
 
 type HeroProps = {
   isHeroVisible: boolean;
-  router: any;
 };
 
 
-export default function Hero({ isHeroVisible, router }: HeroProps) {
+export default function Hero({ isHeroVisible }: HeroProps) {
+  const router = useRouter();
   return (
     <section
       className={cn(

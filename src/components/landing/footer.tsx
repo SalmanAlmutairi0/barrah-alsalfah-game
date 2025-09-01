@@ -1,13 +1,11 @@
-import React from 'react'
 import { Button } from '../ui/button';
 import { Play } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
-type FooterProps = {
-  router: any;
-};
 
-export default function Footer({ router }: FooterProps) {
+
+export default function Footer() {
+  const router = useRouter();
   return (
     <section className="py-20 px-4 bg-gradient-to-r from-primary to-accent">
       <div className="max-w-4xl mx-auto text-center text-white">
