@@ -23,7 +23,7 @@ export default function RoundActions({
     try {
       setLoading(true);
 
-      if(room?.round !== undefined && room?.round + 1 == 3 ){
+      if(room?.round !== undefined && room?.round + 1 == 11 ){
         await chnageRoomStatus({
           roomID: roomID,
           status: "finished",
