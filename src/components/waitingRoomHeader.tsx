@@ -1,27 +1,66 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import { Card, CardDescription, CardHeader, CardTitle } from "./ui/card";
-import { Users } from "lucide-react";
+import { Button } from "./ui/button";
+import { Badge } from "./ui/badge";
+import { GamepadIcon, Copy, Check } from "lucide-react";
 import { usePlayerInfo } from "@/hooks/usePlayerInfo";
+import { toast } from "sonner";
 
 export default function WaitingRoomHeader() {
   const { playerInfo } = usePlayerInfo();
+  const [copied, setCopied] = useState(false);
+
+  const handleCopyRoomCode = async () => {
+    try {
+      await navigator.clipboard.writeText(playerInfo.roomKey);
+      setCopied(true);
+      toast.success("تم نسخ رقم الغرفة!");
+      setTimeout(() => setCopied(false), 2000);
+    } catch (error) {
+      toast.error("فشل في نسخ رقم الغرفة");
+    }
+  };
 
   return (
-    <div className="w-full mx-auto space-y-6">
-      <Card className=" border-2 border-primary/20 shadow-lg">
-        <CardHeader className="text-center">
-          <div className="flex items-center justify-center gap-2 mb-2">
-            <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
-              <Users className="w-4 h-4 text-primary-foreground" />
-            </div>
-            <CardTitle className="flex items-center gap-2 text-2xl font-bold">
-              رقم الغرفة <p>{playerInfo.roomKey}</p>
-            </CardTitle>
+    <Card className="border-2 border-primary/20 shadow-xl bg-gradient-to-r from-primary/5 to-accent/5">
+      <CardHeader className="text-center pb-4 sm:pb-6">
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 sm:mb-4">
+          <div className="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-r from-primary to-accent rounded-full flex items-center justify-center animate-float">
+            <GamepadIcon className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
           </div>
-          <CardDescription className="text-md"> في انتظار الاعبين </CardDescription>
-        </CardHeader>
-      </Card>
-    </div>
+          <div className="text-center sm:text-right">
+            <CardTitle className="text-2xl sm:text-3xl p-3 font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+              في انتظار الاعبين
+            </CardTitle>
+            
+          </div>
+        </div>
+
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
+          <Badge variant="outline" className="text-lg shadow sm:text-xl px-3 py-1 sm:px-4 sm:py-2 font-mono">
+            {playerInfo.roomKey}
+          </Badge>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleCopyRoomCode}
+            className="gap-1 sm:gap-2 text-xs sm:text-sm"
+          >
+            {copied ? (
+              <Check className="w-3 h-3 sm:w-4 sm:h-4" />
+            ) : (
+              <Copy className="w-3 h-3 sm:w-4 sm:h-4" />
+            )}
+            {copied ? "تم النسخ" : "نسخ"}
+          </Button>
+        </div>
+
+        <p className="text-xs sm:text-sm text-muted-foreground mt-2 sm:mt-3 px-2">
+          <span className="hidden sm:inline">شارك هذا الرمز مع أصدقائك للانضمام إلى اللعبة</span>
+          <span className="sm:hidden">شارك الرمز مع أصدقائك</span>
+        </p>
+      </CardHeader>
+    </Card>
   );
 }
