@@ -1,8 +1,8 @@
 "use client";
 
 import React, { createContext, useEffect, useState } from "react";
-import { supabase } from "@/lib/supabaseClient";
 import { getMessagesAction, sendMessageAction } from "@/actions/messages";
+import { socket } from "@/lib/socket";
 
 export type Message = {
   id: number;
@@ -31,11 +31,13 @@ export const MessagesContext = createContext<MessagesContextType | undefined>(
 
 type MessagesProviderProps = {
   roundID: number;
+  roomID: number;
   children: React.ReactNode;
 };
 
 export const MessagesProvider = ({
   roundID,
+  roomID,
   children,
 }: MessagesProviderProps) => {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -50,18 +52,13 @@ export const MessagesProvider = ({
   ) => {
     try {
       setSendingMessage(true);
-      await sendMessageAction({ playerId, playerName, messageText, roundID });
-      // const { error } = await supabase.from("messages").insert({
-      //   player_id: playerId,
-      //   player_name: playerName,
-      //   message: messageText,
-      //   round_id: roundID,
-      // });
-
-      // if (error) {
-      //   console.error("Failed to send message:", error);
-      //   setError("حصل خطأ أثناء إرسال الرسالة.");
-      // }
+      await sendMessageAction({
+        playerId,
+        playerName,
+        messageText,
+        roundID,
+        roomId: roomID,
+      });
     } catch (error) {
       console.error("Unexpected error sending message:", error);
       setError("حصل خطأ أثناء إرسال الرسالة.");
@@ -101,25 +98,13 @@ export const MessagesProvider = ({
 
     fetchMessages();
 
-    const channel = supabase
-      .channel(`round-messages-${roundID}`)
-      .on(
-        "postgres_changes",
-        {
-          event: "INSERT",
-          schema: "public",
-          table: "messages",
-          filter: `round_id=eq.${roundID}`,
-        },
-        (payload) => {
-          const newMessage = payload.new as Message;
-          setMessages((prev) => [...prev, newMessage]);
-        }
-      )
-      .subscribe();
+    // Listen for new messages via Socket.IO
+    socket.on("new-message", (newMessage: Message) => {
+      setMessages((prev) => [...prev, newMessage]);
+    });
 
     return () => {
-      supabase.removeChannel(channel);
+      socket.off("new-message");
     };
   }, [roundID]);
 

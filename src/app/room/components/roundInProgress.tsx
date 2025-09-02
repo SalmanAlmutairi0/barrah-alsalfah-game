@@ -32,7 +32,7 @@ export default function RoundInProgress() {
 
         <div className="flex flex-col md:flex-row items-stretch md:items-start gap-4 w-full">
           <div className="w-full md:basis-2/3 md:max-w-[66%] min-w-0">
-            <MessagesProvider roundID={roundID || 0}>
+            <MessagesProvider roundID={roundID || 0} roomID={playerInfo.roomID}>
               <DiscussionChat />
             </MessagesProvider>
           </div>

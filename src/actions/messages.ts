@@ -7,6 +7,7 @@ type SendMessageParams = {
   playerName: string;
   messageText: string;
   roundID: number;
+  roomId: number;
 };
 
 export const sendMessageAction = async ({
@@ -14,17 +15,27 @@ export const sendMessageAction = async ({
   playerName,
   messageText,
   roundID,
+  roomId,
 }: SendMessageParams) => {
-  const { error } = await supabase.from("messages").insert({
-    player_id: playerId,
-    player_name: playerName,
-    message: messageText,
-    round_id: roundID,
-  });
+  const { data, error } = await supabase
+    .from("messages")
+    .insert({
+      player_id: playerId,
+      player_name: playerName,
+      message: messageText,
+      round_id: roundID,
+    })
+    .select()
+    .single();
 
   if (error) {
     console.error("Failed to send message:", error);
     throw new Error("حصل خطأ أثناء إرسال الرسالة.");
+  }
+
+  // Emit to room
+  if (global.io && data) {
+    global.io.to(roomId.toString()).emit("new-message", data);
   }
 };
 

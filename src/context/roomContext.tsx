@@ -3,6 +3,7 @@
 import { getRoomInfo } from "@/actions/rooms";
 import { supabase } from "@/lib/supabaseClient";
 import React, { createContext, useEffect, useState } from "react";
+import { socket } from "@/lib/socket";
 
 export type RoomStatus =
   | "waiting_for_players"
@@ -47,7 +48,7 @@ export function RoomsProvider({
     if (!roomID) return;
     const fetchRoom = async () => {
       setLoading(true);
-     
+
       const data = await getRoomInfo(roomID);
       setRoom(data as Room);
       setLoading(false);
@@ -60,24 +61,37 @@ export function RoomsProvider({
   useEffect(() => {
     if (!roomID) return;
 
-    const channel = supabase
-      .channel(`room-${roomID}`)
-      .on(
-        "postgres_changes",
-        {
-          event: "UPDATE",
-          schema: "public",
-          table: "rooms",
-          filter: `id=eq.${roomID}`,
-        },
-        (payload) => {
-          setRoom(payload.new as Room);
-        }
-      )
-      .subscribe();
+    // Ensure socket connects only on this page
+    if (!socket.connected) socket.connect();
+
+    // Join the Socket.IO room when component mounts
+    socket.emit("join-room", { roomId: roomID.toString() });
+
+    // Listen for room updates (matches what your action emits)
+    socket.on("room-updated", (updates: Partial<Room>) => {
+      setRoom((prev) => (prev ? { ...prev, ...updates } : null));
+    });
+
+    // Listen for category updates
+    socket.on("category-updated", (updates: Partial<Room>) => {
+      setRoom((prev) => (prev ? { ...prev, ...updates } : null));
+    });
+
+    // If server asks to resync, fetch authoritative room state
+    const handleSync = async () => {
+      const data = await getRoomInfo(roomID);
+      setRoom(data as Room);
+    };
+    socket.on("room-sync-required", handleSync);
 
     return () => {
-      supabase.removeChannel(channel);
+      // Leave the room when component unmounts
+      socket.emit("leave-room", { roomId: roomID.toString() });
+      socket.off("room-updated");
+      socket.off("category-updated");
+      socket.off("room-sync-required", handleSync);
+      // Disconnect the socket when leaving the room page
+      socket.disconnect();
     };
   }, [roomID]);
 

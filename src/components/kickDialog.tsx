@@ -29,34 +29,19 @@ export default function KickDialog({
   player,
 }: KickDialogProps) {
   const [kickLoading, setKickLoading] = useState(false);
-  const { playerInfo, savePlayerInfo } = usePlayerInfo();
-  const { players } = usePlayers();
-
-  const realHostID = players.find((p) => p.is_host)?.id;
-  const potentiallyFakeHostID = playerInfo.playerID;
+  const { playerInfo } = usePlayerInfo();
 
   const handleKick = async () => {
     setIsKickDialogOpen(false);
 
-    // if the user change the isHost in the local storage
-    if (potentiallyFakeHostID !== realHostID) {
-      console.error("Only the real host can kick players.");
-      savePlayerInfo({ ...playerInfo, isHost: false });
-      return;
-    }
-
     try {
       setKickLoading(true);
       setLoading(true);
-      const isKicked = await deletePlayer(player.id);
+      const isKicked = await deletePlayer(player.id, playerInfo.roomID);
       if (isKicked) {
         toast.success("تم طرد الاعب", {
           description: `تم طرد الاعب ${player.name} بنجاح.`,
-          action: {
-            label: "إغلاق",
-            onClick: () => toast.dismiss(),
-          },
-          duration: 5000,
+          duration: 3000,
         });
       } else {
         console.error(`Failed to kick player ${player.name}.`);
@@ -65,11 +50,7 @@ export default function KickDialog({
       console.error("Error kicking player:", error);
       toast.error("حدث خطاء", {
         description: `حصل خطأ أثناء طرد الاعب ${player.name}. حاول مرة أخرى.`,
-        action: {
-          label: "إغلاق",
-          onClick: () => toast.dismiss(),
-        },
-        duration: 5000,
+        duration: 3000,
       });
     } finally {
       setKickLoading(false);

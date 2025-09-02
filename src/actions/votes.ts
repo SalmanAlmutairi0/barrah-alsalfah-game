@@ -6,14 +6,16 @@ type SendVoteParams = {
   roundID: number;
   voterId: number;
   targetId: number;
+  roomId: number;
 };
 
 export const sendVoteAction = async ({
   roundID,
   voterId,
   targetId,
+  roomId,
 }: SendVoteParams) => {
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from("votes")
     .insert({
       round_id: roundID,
@@ -26,6 +28,11 @@ export const sendVoteAction = async ({
   if (error) {
     console.error("لم يتم إرسال الصوت:", error);
     throw new Error(error.message);
+  }
+
+  // Emit to room
+  if (global.io && data) {
+    global.io.to(roomId.toString()).emit("vote-updated", data);
   }
 };
 

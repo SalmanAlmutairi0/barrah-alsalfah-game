@@ -4,8 +4,6 @@ import { Player } from "@/context/playersContext";
 import { Vote } from "@/context/votesContext";
 import { supabase } from "@/lib/supabaseClient";
 
-type PlayerInsertResponse = { id: number };
-
 type CreatePlayerParams = {
   playerName: string;
   isHost: boolean;
@@ -25,8 +23,8 @@ export const createPlayer = async ({
       room_id: roomID,
       is_active: true,
     })
-    .select("id")
-    .single<PlayerInsertResponse>();
+    .select("*")
+    .single();
 
   if (error) {
     console.error("Error creating player:", error);
@@ -34,6 +32,18 @@ export const createPlayer = async ({
   }
 
   const playerID = data.id;
+
+  // Emit to room
+  if (global.io) {
+    global.io.to(roomID?.toString() || "").emit("player-joined", {
+      id: data.id,
+      name: data.name,
+      room_id: data.room_id,
+      score: data.score,
+      is_host: data.is_host,
+      is_active: data.is_active,
+    });
+  }
 
   return playerID;
 };
@@ -65,6 +75,12 @@ export const deletePlayer = async (playerID: number, roomID: number) => {
     if (error) throw error;
 
     console.log(`Player with ID ${playerID} has been deleted.`);
+
+    // Emit to room if roomID is provided
+    if (global.io && roomID) {
+      global.io.to(roomID.toString()).emit("player-left", playerID);
+    }
+
     return true;
   } catch (error) {
     console.error("Error deleting player:", error);
@@ -82,6 +98,11 @@ export const markAllPlayersInactive = async (roomID: number) => {
     if (error) throw error;
 
     console.log(`All players in room ${roomID} have been marked as inactive.`);
+
+    // Emit to room if global.io is available
+    if (global.io && roomID) {
+      global.io.to(roomID.toString()).emit("all-players-left");
+    }
     return true;
   } catch (error) {
     console.error("Error marking all players inactive:", error);
@@ -145,6 +166,12 @@ export const updatePlayerScores = async (
           .from("players")
           .update({ score: newScore })
           .eq("id", player.id);
+
+        // Emit
+        global.io.to(player.room_id.toString()).emit("player-score-updated", {
+          playerID: player.id,
+          score: newScore,
+        });
       }
     }
   } catch (error) {
@@ -179,9 +206,15 @@ export const updateImposterCaughtScore = async (
 
     if (error) {
       console.error(`Error updating imposter score:`, error);
-    } else {
-      console.log(`Imposter got ${scoreToAdd} points for word guess`);
     }
+
+    // Emit
+    global.io.to(imposterID.toString()).emit("player-score-updated", {
+      playerID: imposterID,
+      score: newScore,
+    });
+
+    return true;
   } catch (error) {
     console.error("Error updating imposter score:", error);
   }
@@ -199,10 +232,8 @@ export const getPlayersAction = async ({ roomID }: { roomID: number }) => {
     throw new Error("حصل خطأ أثناء جلب الاعبين.");
   }
 
-  return data ;
+  return data;
 };
-
-
 
 export const getPlayerAction = async ({
   currentPlayerID,
@@ -221,4 +252,53 @@ export const getPlayerAction = async ({
   }
 
   return currentPlayerData;
+};
+
+export const reactivatePlayer = async (playerID: number) => {
+  try {
+    // First get the player data to emit with the event
+    const { data: playerData, error: fetchError } = await supabase
+      .from("players")
+      .select("*")
+      .eq("id", playerID)
+      .single();
+
+    if (fetchError) {
+      console.error("Error fetching player data:", fetchError);
+      throw fetchError;
+    }
+
+    // Update the player to active
+    const { error } = await supabase
+      .from("players")
+      .update({ is_active: true })
+      .eq("id", playerID);
+
+    if (error) {
+      console.error("Error reactivating player:", error);
+      throw error;
+    }
+
+    console.log(`Reactivated player ${playerID} on rejoin`);
+
+    // Emit to room that player has rejoined
+    if (global.io && playerData.room_id) {
+      global.io.to(playerData.room_id.toString()).emit("player-joined", {
+        id: playerData.id,
+        name: playerData.name,
+        room_id: playerData.room_id,
+        score: playerData.score,
+        is_host: playerData.is_host,
+        is_active: true, // Set to true since we just reactivated
+      });
+      console.log(
+        `Emitted player-joined event for player ${playerID} to room ${playerData.room_id}`
+      );
+    }
+
+    return true;
+  } catch (error) {
+    console.error("Error reactivating player:", error);
+    throw error;
+  }
 };
