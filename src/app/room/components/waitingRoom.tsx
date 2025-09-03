@@ -22,7 +22,7 @@ function HostGameControls({
 }) {
   return (
     <div className="space-y-3">
-      {players.length < 3 && (
+      {players.length < 2 && (
         <Card className="border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-950/30 h-20">
           <CardContent className="flex items-center gap-2 sm:gap-3 py-2 sm:py-3 h-full">
             <div className="w-5 h-5 sm:w-6 sm:h-6 bg-amber-500 rounded-full flex items-center justify-center">
@@ -39,7 +39,7 @@ function HostGameControls({
 
       <Button
         className="w-full h-12 sm:h-14 text-lg sm:text-xl font-bold bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 transition-all duration-200 transform hover:scale-[1.01] disabled:transform-none disabled:opacity-50"
-        disabled={loading || players.length < 1}
+        disabled={loading || players.length < 2}
         onClick={onGameStart}
       >
         {loading ? (
