@@ -77,8 +77,8 @@ export default function RoleRevealedView({
           <>
             <p className="font-semibold text-destructive">مهمتك:</p>
             <p className="text-sm text-muted-foreground">
-              أنت ماتعرف الكلمة. استمع زين للي معك وحاول انك تندمج
-              بينهم. عشان ما يكشفونك!
+              أنت ماتعرف الكلمة. استمع زين للي معك وحاول انك تندمج بينهم. عشان
+              ما يكشفونك!
             </p>
           </>
         ) : (
@@ -95,7 +95,7 @@ export default function RoleRevealedView({
         )}
       </div>
 
-      {isHost && (
+      {isHost ? (
         <>
           <div className="mt-1 flex items-center justify-center gap-2">
             <Badge
@@ -124,6 +124,26 @@ export default function RoleRevealedView({
             )}
           </Button>
         </>
+      ) : (
+        <div className="mt-6 text-center space-y-3">
+          <div className="flex items-center justify-center gap-2">
+            <div className="w-6 h-6 rounded-full bg-yellow-500 flex items-center justify-center animate-pulse">
+              <div className="w-2 h-2 bg-white rounded-full"></div>
+            </div>
+            <Badge
+              variant="outline"
+              className="px-3 py-1 text-sm text-yellow-600 border-yellow-300"
+            >
+              في الانتظار
+            </Badge>
+          </div>
+          <p className="text-muted-foreground text-sm">
+            انتظر الهوست حتى يبدأ اللعبة...
+          </p>
+          <p className="text-xs text-muted-foreground/80">
+            تأكد انك فاهم دورك قبل ما تبدأ اللعبة!
+          </p>
+        </div>
       )}
     </div>
   );
