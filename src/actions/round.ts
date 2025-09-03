@@ -68,3 +68,28 @@ export const updateRoundStartTime = async (round_id: number) => {
 
   return true;
 };
+
+
+export const getPreviousRoundImposter = async (
+  room_id: number
+): Promise<number | null> => {
+  const { data, error } = await supabase
+    .from("rounds")
+    .select("imposter_id")
+    .eq("room_id", room_id)
+    .order("created_at", { ascending: false })
+    .limit(2); // Get last 2 rounds
+
+  if (error) {
+    console.error("Error fetching previous rounds:", error);
+    return null;
+  }
+
+  
+  
+  if (data && data.length >= 2) {
+    return data[1].imposter_id;
+  }
+
+  return null; 
+};

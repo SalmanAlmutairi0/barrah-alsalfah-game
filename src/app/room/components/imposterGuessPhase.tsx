@@ -12,6 +12,7 @@ import { chnageRoomStatus } from "@/actions/rooms";
 import ImposterGuessHeader from "@/components/imposterGuessHeader";
 import ImposterWordSelection from "@/components/imposterWordSelection";
 import ImposterWaitingView from "@/components/imposterWaitingView";
+import { socket } from "@/lib/socket.js";
 
 type Imposter = {
   id: number;
@@ -30,6 +31,11 @@ export default function ImposterGotCaught() {
   const [secretWord, setSecretWord] = useState<string | null>(null);
   const [words, setWords] = useState<Word[]>([]);
   const [timeUp, setTimeUp] = useState(false);
+  const [imposterGuess, setImposterGuess] = useState<{
+    word: string;
+    isCorrect: boolean;
+    imposterName: string;
+  } | null>(null);
   const { playerInfo } = usePlayerInfo();
   const { room } = useRoom();
   const { players } = usePlayers();
@@ -85,6 +91,29 @@ export default function ImposterGotCaught() {
     fetchData();
   }, [players, room, playerInfo.roomID]);
 
+  // Listen for imposter guess submissions
+  useEffect(() => {
+    if (!socket.connected) socket.connect();
+
+    const handleImposterGuessSubmitted = (data: {
+      imposterGuess: string;
+      isCorrect: boolean;
+      imposterName: string;
+    }) => {
+      setImposterGuess({
+        word: data.imposterGuess,
+        isCorrect: data.isCorrect,
+        imposterName: data.imposterName,
+      });
+    };
+
+    socket.on("imposter-guess-submitted", handleImposterGuessSubmitted);
+
+    return () => {
+      socket.off("imposter-guess-submitted", handleImposterGuessSubmitted);
+    };
+  }, []);
+
   const handleWordSelect = (word: string) => {
     if (!hasSubmitted && !timeUp && isImposter) {
       setSelectedWord(word);
@@ -99,6 +128,14 @@ export default function ImposterGotCaught() {
 
       // Check if guess is correct
       const isCorrect = selectedWord === secretWord;
+
+      // Emit the imposter's guess to all players in the room via socket
+      socket.emit("imposter-guess-submitted", {
+        roomId: playerInfo.roomID,
+        imposterGuess: selectedWord,
+        isCorrect: isCorrect,
+        imposterName: imposter?.name,
+      });
 
       // Update imposter score based on guess
       if (imposter?.id) {
@@ -196,7 +233,11 @@ export default function ImposterGotCaught() {
             onSubmitGuess={handleSubmitGuess}
           />
         ) : (
-          <ImposterWaitingView imposter={imposter} secretWord={secretWord} />
+          <ImposterWaitingView
+            imposter={imposter}
+            secretWord={secretWord}
+            imposterGuess={imposterGuess}
+          />
         )}
       </div>
     </div>

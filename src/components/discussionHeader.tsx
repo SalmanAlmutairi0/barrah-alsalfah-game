@@ -1,7 +1,7 @@
 "use client";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Users, Hash } from "lucide-react";
+import { Users, Hash, Tag } from "lucide-react";
 import Counter from "./counter";
 import { toast } from "sonner";
 import { usePlayerInfo } from "@/hooks/usePlayerInfo";
@@ -9,6 +9,7 @@ import { useEffect, useState } from "react";
 import { getRoundInfo } from "@/actions/round";
 import { chnageRoomStatus } from "@/actions/rooms";
 import { useRoom } from "@/hooks/useRoom";
+import { getCategoryById, Category } from "@/actions/catagory";
 
 export default function DiscussionHeader() {
   const { playerInfo } = usePlayerInfo();
@@ -17,6 +18,9 @@ export default function DiscussionHeader() {
   const [secretWord, setSecretWord] = useState("");
   const [startedAtSeconds, setStartedAtSeconds] = useState<number | null>(null);
   const [remainingTime, setRemainingTime] = useState(180); // Default 3 minutes
+  const [selectedCategory, setSelectedCategory] = useState<Category | null>(
+    null
+  );
 
   const onCounterFinish = () => {
     // First toast: Time's up (4 seconds)
@@ -56,9 +60,7 @@ export default function DiscussionHeader() {
       const currentTimeSeconds = Math.floor(Date.now() / 1000);
       const elapsedSeconds = currentTimeSeconds - startedAtSeconds;
 
-     
-
-      const totalDiscussionTime = 120; // 3 minutes in seconds
+      const totalDiscussionTime = 120;
 
       const remaining = Math.max(0, totalDiscussionTime - elapsedSeconds);
       setRemainingTime(remaining);
@@ -86,6 +88,22 @@ export default function DiscussionHeader() {
 
     fetchRoundInfo();
   }, [playerInfo.roomID]);
+
+  // Fetch category information when room data is available
+  useEffect(() => {
+    if (!room?.selected_catagory) return;
+
+    const fetchCategory = async () => {
+      try {
+        const category = await getCategoryById(room.selected_catagory!);
+        setSelectedCategory(category);
+      } catch (error) {
+        console.error("Error fetching category:", error);
+      }
+    };
+
+    fetchCategory();
+  }, [room?.selected_catagory]);
 
   return (
     <Card className="border-2 border-primary/20 shadow-lg bg-gradient-to-r from-primary/10 to-accent/10">
@@ -119,6 +137,17 @@ export default function DiscussionHeader() {
             <Hash className="w-5 h-5 text-accent" />
             <span className="text-lg font-medium">الجولة {room?.round}</span>
           </div>
+          {selectedCategory && (
+            <>
+              <Separator orientation="vertical" className="h-8" />
+              <div className="flex items-center gap-2">
+                <Tag className="w-5 h-5 text-secondary-foreground" />
+                <span className="text-lg font-medium">
+                  {selectedCategory.icon} {selectedCategory.name}
+                </span>
+              </div>
+            </>
+          )}
         </div>
       </CardHeader>
     </Card>

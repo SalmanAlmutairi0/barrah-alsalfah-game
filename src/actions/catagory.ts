@@ -23,6 +23,23 @@ export const getCategories = async (): Promise<Category[] | []> => {
   return data as Category[];
 };
 
+export const getCategoryById = async (
+  categoryId: number
+): Promise<Category | null> => {
+  const { data, error } = await supabase
+    .from("categories")
+    .select("id, name, icon")
+    .eq("id", categoryId)
+    .single();
+
+  if (error) {
+    console.error("Error fetching category:", error);
+    return null;
+  }
+
+  return data as Category;
+};
+
 export const updateSelectedCategory = async (
   roomID: number,
   categoryID: number

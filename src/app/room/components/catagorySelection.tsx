@@ -13,7 +13,7 @@ import { toast } from "sonner";
 import { useRoom } from "@/hooks/useRoom";
 import { getRandomWord } from "@/actions/words";
 import { usePlayers } from "@/hooks/usePlayers";
-import { startRound } from "@/actions/round";
+import { startRound, getPreviousRoundImposter } from "@/actions/round";
 import { chnageRoomStatus } from "@/actions/rooms";
 import { Loader2 } from "lucide-react";
 
@@ -36,8 +36,28 @@ export default function CatagorySelection() {
       setLoading(true);
 
       const activePlayers = players.filter((player) => player.is_active);
-      const randomIndex = Math.floor(Math.random() * activePlayers.length);
-      const randomPlayer = activePlayers[randomIndex];
+
+      // Get the previous round's imposter to avoid consecutive selection
+      const previousImposterID = await getPreviousRoundImposter(room.id);
+
+      // Filter out the previous imposter if there are enough players
+      let availablePlayers = activePlayers;
+      if (previousImposterID && activePlayers.length > 1) {
+        availablePlayers = activePlayers.filter(
+          (player) => player.id !== previousImposterID
+        );
+        console.log(
+          `Previous imposter (${previousImposterID}) excluded from selection`
+        );
+      }
+
+      // If filtering left us with no players (shouldn't happen), use all active players
+      if (availablePlayers.length === 0) {
+        availablePlayers = activePlayers;
+      }
+
+      const randomIndex = Math.floor(Math.random() * availablePlayers.length);
+      const randomPlayer = availablePlayers[randomIndex];
 
       const secretWord = await getRandomWord(room.selected_catagory);
       const imposterID = randomPlayer.id;
@@ -48,7 +68,6 @@ export default function CatagorySelection() {
         secret_word: secretWord,
         category_id: selectedCategory || room.selected_catagory,
       });
-
 
       if (!round) {
         throw new Error("Could not start the round");
@@ -92,7 +111,10 @@ export default function CatagorySelection() {
           </CardHeader>
         </Card>
 
-        <CatagoryList selectedCategory={selectedCategory} setSelectedCategory={setSelectedCategory} />
+        <CatagoryList
+          selectedCategory={selectedCategory}
+          setSelectedCategory={setSelectedCategory}
+        />
 
         {playerInfo.isHost && (
           <div className="flex justify-center">
