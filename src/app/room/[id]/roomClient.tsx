@@ -5,7 +5,6 @@ import WaitingRoom from "../components/waitingRoom";
 import { PlayersProvider } from "@/context/playersContext";
 import { usePlayerInfo } from "@/hooks/usePlayerInfo";
 import { useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabaseClient";
 import { RoomsProvider } from "@/context/roomContext";
 import CatagorySelection from "../components/catagorySelection";
 import { useRoom } from "@/hooks/useRoom";
@@ -18,8 +17,9 @@ import { getRoundInfo } from "@/actions/round";
 import { toast } from "sonner";
 import RoundSummary from "../components/roundSummary";
 import ImposterGotCaught from "../components/imposterGuessPhase";
-import { usePlayerPresence } from "@/hooks/usePlayerPresence";
 import GameFinished from "../components/gameFinished";
+import { socket } from "@/lib/socket";
+import { useSocketPresence } from "@/hooks/useSocketPresence";
 
 type Props = {
   roomKey: string;
@@ -29,16 +29,17 @@ export default function RoomClient({ roomKey }: Props) {
   const { playerInfo, deletePlayerInfo, loading } = usePlayerInfo();
   const router = useRouter();
 
-  usePlayerPresence(
+  // if player closed the tap makr him as inactive
+  useSocketPresence(
     playerInfo.playerID,
     playerInfo.roomID,
     playerInfo.playerName
   );
 
-  // if the player joined by the link, we need to check if the room key is correct
+  // if the player joined by the link, i need to check if the room key is correct
   // Only check after loading is complete to avoid redirecting due to empty initial state
   useEffect(() => {
-    if (loading) return; // Wait for player info to load
+    if (loading) return;
 
     if (playerInfo.roomKey !== roomKey || !playerInfo.roomKey) {
       console.log("room key is not correct");
@@ -46,41 +47,30 @@ export default function RoomClient({ roomKey }: Props) {
     }
   }, [playerInfo.roomKey, roomKey, router, loading]);
 
-  // listener for when the user is kicked or the user didnt fill the player name or the room key
+  // Handle socket connection and room joining
   useEffect(() => {
-    if (!playerInfo.playerID) return;
+    if (!playerInfo.roomID || loading) return;
 
-    const channel = supabase
-      .channel(`player-${playerInfo.playerID}`)
-      .on(
-        "postgres_changes",
-        {
-          event: "UPDATE",
-          schema: "public",
-          table: "players",
-          filter: `id=eq.${playerInfo.playerID}`,
-        },
-        (payload) => {
-          if (payload.new && payload.new.is_active === false) {
-            console.log("You have been kicked!");
-            deletePlayerInfo();
-            router.push("/join");
-          }
-        }
-      )
-      .subscribe();
+    // Connect socket if not already connected
+    if (!socket.connected) {
+      socket.connect();
+      console.log("Socket connected");
+    }
+
+    // Join the room with player info
+    socket.emit("join-room", {
+      roomId: playerInfo.roomID.toString(),
+      playerID: playerInfo.playerID,
+    });
 
     return () => {
-      supabase.removeChannel(channel);
+      // Leave the room when component unmounts or roomID changes
+      if (playerInfo.roomID) {
+        console.log("Socket disconnected");
+        socket.emit("leave-room", { roomId: playerInfo.roomID.toString() });
+      }
     };
-  }, [
-    playerInfo.playerID,
-    playerInfo.playerName,
-    playerInfo.roomKey,
-    roomKey,
-    router,
-    deletePlayerInfo,
-  ]);
+  }, [playerInfo.roomID, loading]);
 
   // Show loading while player info is being loaded from storage
   if (loading) {
@@ -155,7 +145,7 @@ const VotingWrapper = () => {
     fetchRoundInfo();
   }, [playerInfo.roomID]);
 
-  if (!roundID) {
+  if (!roundID || !playerInfo.roomID) {
     return (
       <div className="flex justify-center items-center h-screen">
         <Loader2 className="animate-spin size-14" />
@@ -164,7 +154,7 @@ const VotingWrapper = () => {
   }
 
   return (
-    <VotesProvider roundID={roundID}>
+    <VotesProvider roundID={roundID} roomId={playerInfo.roomID}>
       <VotingInProgress />
     </VotesProvider>
   );

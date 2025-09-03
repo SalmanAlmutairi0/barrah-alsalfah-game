@@ -3,6 +3,7 @@
 import React, { createContext, useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import { getVotesAction, sendVoteAction } from "@/actions/votes";
+import { socket } from "@/lib/socket";
 
 export type Vote = {
   id: number;
@@ -28,9 +29,11 @@ export const VotesContext = createContext<VotesContextType | undefined>(
 export function VotesProvider({
   roundID,
   children,
+  roomId,
 }: {
   roundID: number;
   children: React.ReactNode;
+  roomId: number;
 }) {
   const [votes, setVotes] = useState<Vote[]>([]);
   const [votesLoading, setVotesLoading] = useState(false);
@@ -52,7 +55,7 @@ export function VotesProvider({
         throw new Error("مايمديك تصوت على نفسك");
       }
 
-      await sendVoteAction({ roundID, voterId, targetId });
+      await sendVoteAction({ roundID, voterId, targetId, roomId });
     } catch (err) {
       const errorMessage =
         err instanceof Error ? err.message : "لم يتم إرسال الصوت";
@@ -97,36 +100,41 @@ export function VotesProvider({
   useEffect(() => {
     if (!roundID) return;
 
-    const channel = supabase
-      .channel(`votes-${roundID}`)
-      .on(
-        "postgres_changes",
-        {
-          event: "INSERT",
-          schema: "public",
-          table: "votes",
-          filter: `round_id=eq.${roundID}`,
-        },
-        (payload) => {
-          setVotes((prev) => [...prev, payload.new as Vote]);
-        }
-      )
-      .on(
-        "postgres_changes",
-        {
-          event: "DELETE",
-          schema: "public",
-          table: "votes",
-          filter: `round_id=eq.${roundID}`,
-        },
-        (payload) => {
-          setVotes((prev) => prev.filter((vote) => vote.id !== payload.old.id));
-        }
-      )
-      .subscribe();
+    socket.on("vote-updated", (data) => {
+      setVotes((prev) => [...prev, data as Vote]);
+    });
+
+    // const channel = supabase
+    //   .channel(`votes-${roundID}`)
+    //   .on(
+    //     "postgres_changes",
+    //     {
+    //       event: "INSERT",
+    //       schema: "public",
+    //       table: "votes",
+    //       filter: `round_id=eq.${roundID}`,
+    //     },
+    //     (payload) => {
+    //       setVotes((prev) => [...prev, payload.new as Vote]);
+    //     }
+    //   )
+    //   .on(
+    //     "postgres_changes",
+    //     {
+    //       event: "DELETE",
+    //       schema: "public",
+    //       table: "votes",
+    //       filter: `round_id=eq.${roundID}`,
+    //     },
+    //     (payload) => {
+    //       setVotes((prev) => prev.filter((vote) => vote.id !== payload.old.id));
+    //     }
+    //   )
+    //   .subscribe();
 
     return () => {
-      supabase.removeChannel(channel);
+      // supabase.removeChannel(channel);
+      socket.off("vote-updated");
     };
   }, [roundID]);
 

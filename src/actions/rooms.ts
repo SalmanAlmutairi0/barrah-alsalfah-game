@@ -108,17 +108,26 @@ export const chnageRoomStatus = async ({
   roomID,
   status,
 }: ChangeRoomStatusParams) => {
+  // Optimistic emit so clients update immediately
+  if (global.io) {
+    global.io.to(roomID.toString()).emit("room-updated", { status });
+  }
+
   const { error } = await supabase
     .from("rooms")
     .update({ status })
     .eq("id", roomID);
 
-  if (!error) return true;
-
   if (error) {
     console.error("Error updating room status:", error);
+    // Ask clients to resync if DB write failed
+    if (global.io) {
+      global.io.to(roomID.toString()).emit("room-sync-required");
+    }
     throw error;
   }
+
+  return true;
 };
 
 type UpdateRoundParams = {
@@ -135,6 +144,11 @@ export const updateRound = async ({ roomID, round }: UpdateRoundParams) => {
   if (error) {
     console.error("Error updating round:", error);
     throw error;
+  }
+
+  // Emit to room
+  if (global.io) {
+    global.io.to(roomID.toString()).emit("round-updated", { round });
   }
 
   return true;

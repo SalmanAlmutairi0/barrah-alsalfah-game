@@ -27,6 +27,13 @@ export const updateSelectedCategory = async (
   roomID: number,
   categoryID: number
 ) => {
+  // Optimistic emit so clients update immediately
+  if (global.io) {
+    global.io.to(roomID.toString()).emit("category-updated", {
+      selected_catagory: categoryID,
+    });
+  }
+
   const { data, error } = await supabase
     .from("rooms")
     .update({ selected_catagory: categoryID })
@@ -36,8 +43,11 @@ export const updateSelectedCategory = async (
 
   if (error) {
     console.error("Error updating selected category:", error);
+    // Ask clients to resync if DB write failed
+    if (global.io) {
+      global.io.to(roomID.toString()).emit("room-sync-required");
+    }
     throw new Error("Failed to update selected category.");
   }
-
   return data;
 };
