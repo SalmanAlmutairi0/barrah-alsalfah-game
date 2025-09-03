@@ -55,12 +55,16 @@ export default function DiscussionHeader() {
     if (startedAtSeconds) {
       const currentTimeSeconds = Math.floor(Date.now() / 1000);
       const elapsedSeconds = currentTimeSeconds - startedAtSeconds;
-      const totalDiscussionTime = 180; // 3 minutes in seconds
+
+     
+
+      const totalDiscussionTime = 120; // 3 minutes in seconds
+
       const remaining = Math.max(0, totalDiscussionTime - elapsedSeconds);
       setRemainingTime(remaining);
     } else {
       // If no start time, use full timer
-      setRemainingTime(180);
+      setRemainingTime(120);
     }
   }, [startedAtSeconds]);
 
