@@ -48,7 +48,7 @@ export default function KickDialog({
     try {
       setKickLoading(true);
       setLoading(true);
-      const isKicked = await deletePlayer(player.id);
+      const isKicked = await deletePlayer(player.id, playerInfo.roomID);
       if (isKicked) {
         toast.success("تم طرد الاعب", {
           description: `تم طرد الاعب ${player.name} بنجاح.`,
