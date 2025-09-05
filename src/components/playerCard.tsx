@@ -7,7 +7,7 @@ import KickDialog from "./kickDialog";
 import { usePlayerInfo } from "@/hooks/usePlayerInfo";
 
 export type PlayerCardProps = {
-  player: { id: number; name: string; is_host: boolean };
+  player: { id: number; name: string; isHost: boolean };
 };
 
 export default function PlayerCard({ player }: PlayerCardProps) {
@@ -32,7 +32,7 @@ export default function PlayerCard({ player }: PlayerCardProps) {
           {player.name.charAt(0).toUpperCase()}
         </div>
       </div>
-      {player.is_host && (
+      {player.isHost && (
         <Badge
           variant="secondary"
           className="bg-accent text-accent-foreground flex items-center gap-1"
@@ -41,7 +41,7 @@ export default function PlayerCard({ player }: PlayerCardProps) {
           المضيف
         </Badge>
       )}
-      {!player.is_host && (
+      {!player.isHost && (
         <Button
           variant="outline"
           size="sm"

@@ -97,27 +97,38 @@ export const chnageRoomStatus = async ({
   roomID,
   status,
 }: ChangeRoomStatusParams) => {
-  // Optimistic emit so clients update immediately
-  if (global.io) {
-    global.io.to(roomID.toString()).emit("room-updated", { status });
-  }
+  try {
+    // Optimistic emit so clients update immediately
+    if (global.io) {
+      global.io.to(roomID.toString()).emit("room-updated", { status });
+    }
 
-  const [data] = await db
-    .update(roomTable)
-    .set({ status: status })
-    .where(eq(roomTable.id, roomID))
-    .returning();
+    const [data] = await db
+      .update(roomTable)
+      .set({ status: status })
+      .where(eq(roomTable.id, roomID))
+      .returning();
 
-  if (!data) {
-    console.error("Error updating room status:", data);
+    if (!data) {
+      console.error("Error updating room status - no data returned:", {
+        roomID,
+        status,
+      });
+      // Ask clients to resync if DB write failed
+      if (global.io) {
+        global.io.to(roomID.toString()).emit("room-sync-required");
+      }
+      throw new Error("Error updating room status - no data returned");
+    }
+
+    return true;
+  } catch (error) {
+    console.error("Database error in chnageRoomStatus:", error);
     // Ask clients to resync if DB write failed
     if (global.io) {
       global.io.to(roomID.toString()).emit("room-sync-required");
     }
-    throw new Error("Error updating room status");
   }
-
-  return true;
 };
 
 type UpdateRoundParams = {

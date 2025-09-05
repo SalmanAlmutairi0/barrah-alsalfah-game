@@ -18,7 +18,7 @@ import { toast } from "sonner";
 type KickDialogProps = {
   isKickDialogOpen: boolean;
   setIsKickDialogOpen: (value: boolean) => void;
-  player: { id: number; name: string; is_host: boolean };
+  player: { id: number; name: string; isHost: boolean };
   setLoading: (value: boolean) => void;
 };
 

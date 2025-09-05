@@ -22,7 +22,7 @@ export default function Leaderboard({
   getRoundPoints,
 }: LeaderboardProps) {
   // Sort players by score (highest first)
-  const sortedPlayers = [...players].sort((a, b) => b.score - a.score);
+  const sortedPlayers = [...players].sort((a, b) => (b.score || 0) - (a.score || 0));
 
   return (
     <Card className="border-2 border-accent/20">

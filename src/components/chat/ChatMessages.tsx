@@ -9,7 +9,7 @@ import { MessageCircle } from "lucide-react";
 type ChatMessagesProps = {
   messages: ChatMessage[];
   currentPlayerId: number;
-}
+};
 
 export default function ChatMessages({
   messages,
@@ -43,7 +43,7 @@ export default function ChatMessages({
             <Message
               key={message.id}
               message={message}
-              isCurrentPlayer={message.player_id === currentPlayerId}
+              isCurrentPlayer={message.playerID === currentPlayerId}
             />
           ))
         )}

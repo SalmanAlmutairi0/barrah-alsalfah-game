@@ -1,8 +1,8 @@
 export type ChatMessage = {
   id: number;
-  player_id: number;
-  player_name: string;
+  playerID: number;
+  playerName: string;
   message: string;
-  round_id: number;
-  created_at: string;
-}
+  roundID: number;
+  createdAt: Date | null;
+};

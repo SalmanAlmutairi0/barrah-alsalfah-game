@@ -25,6 +25,8 @@ export default function CatagorySelection() {
   const [selectedCategory, setSelectedCategory] = useState<number>(0);
 
   const handleStartGame = async () => {
+    if (!playerInfo.roomID) return;
+
     if (!room?.selectedCatagory) {
       toast.warning("يرجى اختيار تصنيف للعب!", {
         duration: 4000,
@@ -38,8 +40,8 @@ export default function CatagorySelection() {
       const activePlayers = players.filter((player) => player.isActive);
 
       // Get the previous round's imposter to avoid consecutive selection
-      const previousImposterID = await getPreviousRoundImposter(room.id);
-
+      const previousImposterID = await getPreviousRoundImposter(playerInfo.roomID);
+      console.log("previousImposterID", previousImposterID);
       // Filter out the previous imposter if there are enough players
       let availablePlayers = activePlayers;
       if (previousImposterID && activePlayers.length > 1) {
@@ -62,19 +64,23 @@ export default function CatagorySelection() {
       const secretWord = await getRandomWord(room.selectedCatagory);
       const imposterID = randomPlayer.id;
 
+      console.log("selectedCategory", selectedCategory);
+
       const round = await startRound({
-        room_id: room.id,
+        room_id: playerInfo.roomID,
         imposter_id: imposterID,
         secret_word: secretWord,
-        category_id: selectedCategory || room.selectedCatagory,
+        category_id: selectedCategory,
       });
+
+      console.log("round", round);
 
       if (!round) {
         throw new Error("Could not start the round");
       }
 
       await chnageRoomStatus({
-        roomID: room.id,
+        roomID: playerInfo.roomID,
         status: "role_assignment",
       });
 

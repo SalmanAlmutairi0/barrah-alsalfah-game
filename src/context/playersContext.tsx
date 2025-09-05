@@ -8,10 +8,10 @@ export type Player = {
   id: number;
   name: string;
   roomID: number | null;
-  score: number | null;
-  isHost: boolean | null;
-  isActive: boolean | null;
-  createdAt: Date | null;
+  score: number;
+  isHost: boolean;
+  isActive: boolean;
+  createdAt: Date;
 };
 
 type PlayersContextType = {

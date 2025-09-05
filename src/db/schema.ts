@@ -12,9 +12,9 @@ export const playerTable = pgTable("players", {
   name: text("name").notNull(),
   roomID: integer("room_id"),
   score: integer("score").default(0).notNull(),
-  isHost: boolean("is_host"),
-  isActive: boolean("is_active").default(true),
-  createdAt: timestamp("created_at").defaultNow(),
+  isHost: boolean("is_host").notNull(),
+  isActive: boolean("is_active").default(true).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
 export const roomTable = pgTable("rooms", {
@@ -38,8 +38,8 @@ export const catagoryTable = pgTable("catagories", {
 
 export const wordsTable = pgTable("words", {
   id: serial("id").primaryKey(),
-  word: text("word"),
-  catagoryID: integer("catagory_id").references(() => catagoryTable.id),
+  word: text("word").notNull(),
+  catagoryID: integer("catagory_id").references(() => catagoryTable.id).notNull(),
   createdAt: timestamp("created_at").defaultNow(),
 });
 

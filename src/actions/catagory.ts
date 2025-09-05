@@ -41,17 +41,6 @@ export const getCategories = async () => {
 };
 
 export const getCategoryById = async (categoryId: number) => {
-  // const { data, error } = await supabase
-  //   .from("categories")
-  //   .select("id, name, icon")
-  //   .eq("id", categoryId)
-  //   .single();
-
-  // if (error) {
-  //   console.error("Error fetching category:", error);
-  //   return null;
-  // }
-
   const [data] = await db
     .select({
       id: catagoryTable.id,
@@ -78,13 +67,6 @@ export const updateSelectedCategory = async (
       selectedCatagory: categoryID,
     });
   }
-
-  // const { data, error } = await supabase
-  //   .from("rooms")
-  //   .update({ selected_catagory: categoryID })
-  //   .eq("id", roomID)
-  //   .select("selected_catagory")
-  //   .single();
 
   const [data] = await db
     .update(roomTable)

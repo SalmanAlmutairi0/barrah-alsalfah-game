@@ -76,10 +76,11 @@ export default function WaitingRoom() {
   const [loading, setLoading] = useState(false);
 
   const handleGameStart = async () => {
+    if (!playerInfo.roomID) return;
     try {
       setLoading(true);
       await chnageRoomStatus({
-        roomID: Number(players[0].room_id),
+        roomID: playerInfo.roomID,
         status: "catagory_selection",
       });
     } catch (error) {

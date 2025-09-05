@@ -60,6 +60,10 @@ export default function CatagoryCard({
         );
         if (selectedCategoryID.selectedCatagory) {
           setSelectedCategory(selectedCategoryID.selectedCatagory);
+          console.log(
+            "selectedCategoryID",
+            selectedCategoryID.selectedCatagory
+          );
         }
         savePlayerInfo({
           ...playerInfo,

@@ -5,6 +5,7 @@ import { wordsTable } from "@/db/schema";
 import { eq } from "drizzle-orm";
 
 export const getRandomWord = async (categoryID: number) => {
+ console.log("selected categoryID", categoryID)
   const data = await db
     .select({
       id: wordsTable.id,
@@ -19,6 +20,7 @@ export const getRandomWord = async (categoryID: number) => {
 
   // Select a random word from the fetched words
   const randomIndex = Math.floor(Math.random() * data.length);
+  console.log("random word", data[randomIndex].word)
   return data[randomIndex].word;
 };
 

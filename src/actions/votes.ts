@@ -50,10 +50,5 @@ export const getVotesAction = async ({ roundID }: { roundID: number }) => {
     .where(eq(votesTable.roundID, roundID))
     .orderBy(asc(votesTable.createdAt));
 
-  if (data.length === 0) {
-    console.error("Error fetching votes:", data);
-    throw new Error("حصل خطأ أثناء جلب الاصوات.");
-  }
-
   return data;
 };

@@ -47,10 +47,6 @@ export const getMessagesAction = async ({ roundID }: { roundID: number }) => {
     .where(eq(messagesTable.roundID, roundID))
     .orderBy(asc(messagesTable.createdAt));
 
-  if (!data || data.length === 0) {
-    console.error("Error fetching messages:", data);
-    throw new Error("حصل خطأ أثناء جلب الرسائل.");
-  }
-
-  return data;
+  // Return empty array if no messages found - this is valid
+  return data || [];
 };
