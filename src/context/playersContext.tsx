@@ -1,17 +1,17 @@
 "use client";
 
 import React, { createContext, useEffect, useState } from "react";
-import { supabase } from "@/lib/supabaseClient";
 import { getPlayerAction, getPlayersAction } from "@/actions/players";
 import { socket } from "@/lib/socket";
 
 export type Player = {
   id: number;
   name: string;
-  room_id: string;
-  score: number;
-  is_host: boolean;
-  is_active: boolean;
+  roomID: number | null;
+  score: number | null;
+  isHost: boolean | null;
+  isActive: boolean | null;
+  createdAt: Date | null;
 };
 
 type PlayersContextType = {

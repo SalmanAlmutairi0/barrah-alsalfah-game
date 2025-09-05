@@ -77,9 +77,11 @@ export default function DiscussionHeader() {
       try {
         const round = await getRoundInfo(playerInfo.roomID);
 
-        setIsImposter(round.imposter_id === playerInfo.playerID);
-        setSecretWord(round.secret_word);
-        setStartedAtSeconds(round.started_at);
+        setIsImposter(round.imposterID === playerInfo.playerID);
+        setSecretWord(round.secretWord || "");
+        setStartedAtSeconds(
+          round.startedAt ? round.startedAt.getTime() / 1000 : null
+        );
       } catch (error) {
         console.error("Error fetching round info:", error);
         toast.error("حدث خطأ ما");
@@ -91,19 +93,19 @@ export default function DiscussionHeader() {
 
   // Fetch category information when room data is available
   useEffect(() => {
-    if (!room?.selected_catagory) return;
+    if (!room?.selectedCatagory) return;
 
     const fetchCategory = async () => {
       try {
-        const category = await getCategoryById(room.selected_catagory!);
-        setSelectedCategory(category);
+        const category = await getCategoryById(room.selectedCatagory!);
+        setSelectedCategory(category as Category);
       } catch (error) {
         console.error("Error fetching category:", error);
       }
     };
 
     fetchCategory();
-  }, [room?.selected_catagory]);
+  }, [room?.selectedCatagory]);
 
   return (
     <Card className="border-2 border-primary/20 shadow-lg bg-gradient-to-r from-primary/10 to-accent/10">
@@ -135,7 +137,9 @@ export default function DiscussionHeader() {
           <Separator orientation="vertical" className="h-8" />
           <div className="flex items-center gap-2">
             <Hash className="w-5 h-5 text-accent" />
-            <span className="text-lg font-medium">الجولة {room?.round}</span>
+            <span className="text-lg font-medium">
+              الجولة {room?.roundNumber || 0}
+            </span>
           </div>
           {selectedCategory && (
             <>

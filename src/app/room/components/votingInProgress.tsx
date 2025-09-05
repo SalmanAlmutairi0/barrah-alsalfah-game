@@ -57,7 +57,7 @@ export default function VotingInProgress() {
       setHasProcessedVotes(true);
       // Get the current round info to find the imposter
       const roundInfo = await getRoundInfo(playerInfo.roomID);
-      const imposterID = roundInfo.imposter_id;
+      const imposterID = roundInfo.imposterID;
 
       // Count votes for each player
       const votesCount = players.map((player) => ({

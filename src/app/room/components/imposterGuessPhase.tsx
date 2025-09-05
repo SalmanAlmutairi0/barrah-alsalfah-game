@@ -47,7 +47,7 @@ export default function ImposterGotCaught() {
         // Wait for players and room data to be available
         if (
           players.length === 0 ||
-          !room?.selected_catagory ||
+          !room?.selectedCatagory ||
           !playerInfo.roomID
         ) {
           return;
@@ -56,7 +56,7 @@ export default function ImposterGotCaught() {
         // Get round info
         const roundInfo = await getRoundInfo(playerInfo.roomID);
         const imposterPlayer = players.find(
-          (player) => player.id === roundInfo.imposter_id
+          (player) => player.id === roundInfo.imposterID
         );
 
         if (imposterPlayer) {
@@ -66,17 +66,17 @@ export default function ImposterGotCaught() {
           });
         }
 
-        setSecretWord(roundInfo.secret_word);
+        setSecretWord(roundInfo.secretWord);
 
         // Get words from category
-        const wordsData = await getWords(room.selected_catagory);
+        const wordsData = await getWords(room.selectedCatagory);
 
         // Add the secret word to the list if it's not already there
         const wordExists = wordsData.some(
-          (w) => w.word === roundInfo.secret_word
+          (w) => w.word === roundInfo.secretWord
         );
         if (!wordExists) {
-          wordsData.push({ id: 0, word: roundInfo.secret_word });
+          wordsData.push({ id: 0, word: roundInfo.secretWord });
         }
 
         // Shuffle the words

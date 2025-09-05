@@ -1,6 +1,9 @@
 "use server";
 
-import { supabase } from "@/lib/supabaseClient";
+import { db } from "@/db";
+import { votesTable } from "@/db/schema";
+import { eq } from "drizzle-orm";
+import { asc } from "drizzle-orm";
 
 type SendVoteParams = {
   roundID: number;
@@ -15,19 +18,18 @@ export const sendVoteAction = async ({
   targetId,
   roomId,
 }: SendVoteParams) => {
-  const { data, error } = await supabase
-    .from("votes")
-    .insert({
-      round_id: roundID,
-      voter_id: voterId,
-      target_id: targetId,
+  const [data] = await db
+    .insert(votesTable)
+    .values({
+      voterID: voterId,
+      targetID: targetId,
+      roundID,
     })
-    .select("id, round_id, voter_id, target_id, created_at")
-    .single();
+    .returning();
 
-  if (error) {
-    console.error("لم يتم إرسال الصوت:", error);
-    throw new Error(error.message);
+  if (!data) {
+    console.error("Error sending vote:", data);
+    throw new Error("Could not send vote");
   }
 
   // Emit to room
@@ -37,15 +39,20 @@ export const sendVoteAction = async ({
 };
 
 export const getVotesAction = async ({ roundID }: { roundID: number }) => {
-  const { data, error } = await supabase
-    .from("votes")
-    .select("id, round_id, voter_id, target_id, created_at")
-    .eq("round_id", roundID)
-    .order("created_at", { ascending: true });
+  const data = await db
+    .select({
+      id: votesTable.id,
+      roundID: votesTable.roundID,
+      voterID: votesTable.voterID,
+      targetID: votesTable.targetID,
+    })
+    .from(votesTable)
+    .where(eq(votesTable.roundID, roundID))
+    .orderBy(asc(votesTable.createdAt));
 
-  if (error) {
-    console.error("لم يتم جلب الصوتات:", error);
-    throw new Error(error.message);
+  if (data.length === 0) {
+    console.error("Error fetching votes:", data);
+    throw new Error("حصل خطأ أثناء جلب الاصوات.");
   }
 
   return data;

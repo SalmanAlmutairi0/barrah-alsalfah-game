@@ -6,11 +6,11 @@ import { socket } from "@/lib/socket";
 
 export type Message = {
   id: number;
-  player_id: number;
-  player_name: string;
+  playerID: number;
+  playerName: string;
   message: string;
-  round_id: number;
-  created_at: string;
+  roundID: number;
+  createdAt: Date;
 };
 
 type MessagesContextType = {
@@ -75,7 +75,7 @@ export const MessagesProvider = ({
       setError(null);
       try {
         const data = await getMessagesAction({ roundID });
-        setMessages(data || []);
+        setMessages(data as Message[]);
         // const { data, error } = await supabase
         //   .from("messages")
         //   .select("*")

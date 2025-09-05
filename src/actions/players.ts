@@ -2,7 +2,9 @@
 
 import { Player } from "@/context/playersContext";
 import { Vote } from "@/context/votesContext";
-import { supabase } from "@/lib/supabaseClient";
+import { db } from "@/db";
+import { playerTable } from "@/db/schema";
+import { and, eq } from "drizzle-orm";
 
 type CreatePlayerParams = {
   playerName: string;
@@ -15,20 +17,19 @@ export const createPlayer = async ({
   isHost,
   roomID,
 }: CreatePlayerParams) => {
-  const { data, error } = await supabase
-    .from("players")
-    .insert({
+  const [data] = await db
+    .insert(playerTable)
+    .values({
       name: playerName,
-      is_host: isHost,
-      room_id: roomID,
-      is_active: true,
+      isHost: isHost,
+      roomID: roomID,
+      isActive: true,
     })
-    .select("*")
-    .single();
+    .returning();
 
-  if (error) {
-    console.error("Error creating player:", error);
-    throw error;
+  if (!data) {
+    console.error("Error creating player:", data);
+    throw new Error("Error creating player");
   }
 
   const playerID = data.id;
@@ -38,10 +39,10 @@ export const createPlayer = async ({
     global.io.to(roomID?.toString() || "").emit("player-joined", {
       id: data.id,
       name: data.name,
-      room_id: data.room_id,
+      room_id: data.roomID,
       score: data.score,
-      is_host: data.is_host,
-      is_active: data.is_active,
+      is_host: data.isHost,
+      is_active: data.isActive,
     });
   }
 
@@ -49,14 +50,17 @@ export const createPlayer = async ({
 };
 
 const checkIfPlayersIsHost = async (playerID: number) => {
-  const { data, error } = await supabase
-    .from("players")
-    .select("is_host")
-    .eq("id", playerID)
-    .single();
+  const [data] = await db
+    .select({ isHost: playerTable.isHost })
+    .from(playerTable)
+    .where(eq(playerTable.id, playerID));
 
-  if (error) throw error;
-  return data.is_host;
+  if (!data) {
+    console.error("Error checking if player is host:", data);
+    throw new Error("Error checking if player is host");
+  }
+
+  return data?.isHost;
 };
 
 export const deletePlayer = async (playerID: number, roomID: number) => {
@@ -67,14 +71,16 @@ export const deletePlayer = async (playerID: number, roomID: number) => {
       await markAllPlayersInactive(roomID);
     }
 
-    const { error } = await supabase
-      .from("players")
-      .update({ is_active: false })
-      .eq("id", playerID);
+    const [data] = await db
+      .update(playerTable)
+      .set({ isActive: false })
+      .where(eq(playerTable.id, playerID))
+      .returning();
 
-    if (error) throw error;
-
-    console.log(`Player with ID ${playerID} has been deleted.`);
+    if (!data) {
+      console.error("Error deleting player:", data);
+      throw new Error("Error deleting player");
+    }
 
     // Emit to room if roomID is provided
     if (global.io && roomID) {
@@ -90,12 +96,16 @@ export const deletePlayer = async (playerID: number, roomID: number) => {
 
 export const markAllPlayersInactive = async (roomID: number) => {
   try {
-    const { error } = await supabase
-      .from("players")
-      .update({ is_active: false })
-      .eq("room_id", roomID);
+    const data = await db
+      .update(playerTable)
+      .set({ isActive: false })
+      .where(eq(playerTable.roomID, roomID))
+      .returning();
 
-    if (error) throw error;
+    if (data.length === 0) {
+      console.error("Error marking all players inactive:", data);
+      throw new Error("Error marking all players inactive");
+    }
 
     console.log(`All players in room ${roomID} have been marked as inactive.`);
 
@@ -121,9 +131,9 @@ export const updatePlayerScores = async (
     for (const player of players) {
       const isImposter = player.id === imposterID;
       const votedForImposter = votes.some(
-        (vote) => vote.voter_id === player.id && vote.target_id === imposterID
+        (vote) => vote.voterID === player.id && vote.targetID === imposterID
       );
-      const didVote = votes.some((vote) => vote.voter_id === player.id);
+      const didVote = votes.some((vote) => vote.voterID === player.id);
 
       let scoreToAdd = 0;
 
@@ -162,16 +172,18 @@ export const updatePlayerScores = async (
         const currentScore = player.score || 0;
         const newScore = currentScore + scoreToAdd;
 
-        await supabase
-          .from("players")
-          .update({ score: newScore })
-          .eq("id", player.id);
+        await db
+          .update(playerTable)
+          .set({ score: newScore })
+          .where(eq(playerTable.id, player.id));
 
         // Emit
-        global.io.to(player.room_id.toString()).emit("player-score-updated", {
-          playerID: player.id,
-          score: newScore,
-        });
+        global.io
+          .to(player.roomID?.toString() || "")
+          .emit("player-score-updated", {
+            playerID: player.id,
+            score: newScore,
+          });
       }
     }
   } catch (error) {
@@ -188,25 +200,19 @@ export const updateImposterCaughtScore = async (
 
   try {
     // Get current score first
-    const { data: playerData, error: fetchError } = await supabase
-      .from("players")
-      .select("score")
-      .eq("id", imposterID)
-      .single();
-
-    if (fetchError) throw fetchError;
+    const [playerData] = await db
+      .select({ score: playerTable.score })
+      .from(playerTable)
+      .where(eq(playerTable.id, imposterID));
 
     const currentScore = playerData.score || 0;
     const newScore = currentScore + scoreToAdd;
 
-    const { error } = await supabase
-      .from("players")
-      .update({ score: newScore })
-      .eq("id", imposterID);
-
-    if (error) {
-      console.error(`Error updating imposter score:`, error);
-    }
+    // Update score
+    await db
+      .update(playerTable)
+      .set({ score: newScore })
+      .where(eq(playerTable.id, imposterID));
 
     // Emit
     global.io.to(imposterID.toString()).emit("player-score-updated", {
@@ -221,14 +227,13 @@ export const updateImposterCaughtScore = async (
 };
 
 export const getPlayersAction = async ({ roomID }: { roomID: number }) => {
-  const { data, error } = await supabase
-    .from("players")
-    .select("*")
-    .eq("room_id", roomID)
-    .eq("is_active", true);
+  const data = await db
+    .select()
+    .from(playerTable)
+    .where(and(eq(playerTable.roomID, roomID), eq(playerTable.isActive, true)));
 
-  if (error) {
-    console.error("Failed to fetch players:", error);
+  if (data.length === 0) {
+    console.error("Error fetching players:", data);
     throw new Error("حصل خطأ أثناء جلب الاعبين.");
   }
 
@@ -240,14 +245,13 @@ export const getPlayerAction = async ({
 }: {
   currentPlayerID: number;
 }) => {
-  const { data: currentPlayerData, error } = await supabase
-    .from("players")
-    .select("*")
-    .eq("id", currentPlayerID)
-    .single();
+  const [currentPlayerData] = await db
+    .select()
+    .from(playerTable)
+    .where(eq(playerTable.id, currentPlayerID));
 
-  if (error) {
-    console.error("Failed to fetch player:", error);
+  if (!currentPlayerData) {
+    console.error("Error fetching player:", currentPlayerData);
     throw new Error("حصل خطأ أثناء جلب الاعب.");
   }
 
@@ -257,42 +261,42 @@ export const getPlayerAction = async ({
 export const reactivatePlayer = async (playerID: number) => {
   try {
     // First get the player data to emit with the event
-    const { data: playerData, error: fetchError } = await supabase
-      .from("players")
-      .select("*")
-      .eq("id", playerID)
-      .single();
+    const [playerData] = await db
+      .select()
+      .from(playerTable)
+      .where(eq(playerTable.id, playerID));
 
-    if (fetchError) {
-      console.error("Error fetching player data:", fetchError);
-      throw fetchError;
+    if (!playerData) {
+      console.error("Error fetching player:", playerData);
+      throw new Error("حصل خطأ أثناء جلب الاعب.");
     }
 
     // Update the player to active
-    const { error } = await supabase
-      .from("players")
-      .update({ is_active: true })
-      .eq("id", playerID);
+    const [data] = await db
+      .update(playerTable)
+      .set({ isActive: true })
+      .where(eq(playerTable.id, playerID))
+      .returning();
 
-    if (error) {
-      console.error("Error reactivating player:", error);
-      throw error;
+    if (!data) {
+      console.error("Error reactivating player:", data);
+      throw new Error("حصل خطأ أثناء إعادة تنشيط الاعب.");
     }
 
     console.log(`Reactivated player ${playerID} on rejoin`);
 
     // Emit to room that player has rejoined
-    if (global.io && playerData.room_id) {
-      global.io.to(playerData.room_id.toString()).emit("player-joined", {
+    if (global.io && playerData.roomID) {
+      global.io.to(playerData.roomID.toString()).emit("player-joined", {
         id: playerData.id,
         name: playerData.name,
-        room_id: playerData.room_id,
+        room_id: playerData.roomID,
         score: playerData.score,
-        is_host: playerData.is_host,
+        is_host: playerData.isHost,
         is_active: true, // Set to true since we just reactivated
       });
       console.log(
-        `Emitted player-joined event for player ${playerID} to room ${playerData.room_id}`
+        `Emitted player-joined event for player ${playerID} to room ${playerData.roomID}`
       );
     }
 

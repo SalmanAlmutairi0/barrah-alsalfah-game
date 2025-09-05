@@ -43,7 +43,7 @@ export function JoinRoomForm({ onSuccess }: JoinRoomFormProps) {
       onSuccess({
         playerID: roomData.playerID,
         playerName: playerName,
-        roomKey: roomData.roomkey,
+        roomKey: roomData.roomKey,
         roomID: roomData.roomID,
       });
     } catch (err) {

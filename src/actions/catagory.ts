@@ -1,6 +1,8 @@
 "use server";
 
-import { supabase } from "@/lib/supabaseClient";
+import { db } from "@/db";
+import { catagoryTable, roomTable, wordsTable } from "@/db/schema";
+import { desc, eq } from "drizzle-orm";
 
 export type Category = {
   id: number;
@@ -9,35 +11,61 @@ export type Category = {
   words: { id: number; word: string }[];
 };
 
-export const getCategories = async (): Promise<Category[] | []> => {
-  const { data, error } = await supabase
-    .from("categories")
-    .select("id, name, icon, words(id, word)")
-    .order("id", { ascending: false });
+export const getCategories = async () => {
+  const categories = await db
+    .select({
+      id: catagoryTable.id,
+      name: catagoryTable.name,
+      icon: catagoryTable.icon,
+    })
+    .from(catagoryTable)
+    .orderBy(desc(catagoryTable.id));
 
-  if (error) {
-    console.error("Error fetching categories:", error);
-    return [];
-  }
+  console.log("categories", categories);
 
-  return data as Category[];
+  const categoriesWithWords = await Promise.all(
+    categories.map(async (category) => {
+      const words = await db
+        .select({ id: wordsTable.id, word: wordsTable.word })
+        .from(wordsTable)
+        .where(eq(wordsTable.catagoryID, category.id));
+
+      return {
+        ...category,
+        words,
+      };
+    })
+  );
+
+  return categoriesWithWords;
 };
 
-export const getCategoryById = async (
-  categoryId: number
-): Promise<Category | null> => {
-  const { data, error } = await supabase
-    .from("categories")
-    .select("id, name, icon")
-    .eq("id", categoryId)
-    .single();
+export const getCategoryById = async (categoryId: number) => {
+  // const { data, error } = await supabase
+  //   .from("categories")
+  //   .select("id, name, icon")
+  //   .eq("id", categoryId)
+  //   .single();
 
-  if (error) {
-    console.error("Error fetching category:", error);
-    return null;
+  // if (error) {
+  //   console.error("Error fetching category:", error);
+  //   return null;
+  // }
+
+  const [data] = await db
+    .select({
+      id: catagoryTable.id,
+      name: catagoryTable.name,
+      icon: catagoryTable.icon,
+    })
+    .from(catagoryTable)
+    .where(eq(catagoryTable.id, categoryId));
+
+  if (!data) {
+    throw new Error("Category not found");
   }
 
-  return data as Category;
+  return data;
 };
 
 export const updateSelectedCategory = async (
@@ -47,19 +75,25 @@ export const updateSelectedCategory = async (
   // Optimistic emit so clients update immediately
   if (global.io) {
     global.io.to(roomID.toString()).emit("category-updated", {
-      selected_catagory: categoryID,
+      selectedCatagory: categoryID,
     });
   }
 
-  const { data, error } = await supabase
-    .from("rooms")
-    .update({ selected_catagory: categoryID })
-    .eq("id", roomID)
-    .select("selected_catagory")
-    .single();
+  // const { data, error } = await supabase
+  //   .from("rooms")
+  //   .update({ selected_catagory: categoryID })
+  //   .eq("id", roomID)
+  //   .select("selected_catagory")
+  //   .single();
 
-  if (error) {
-    console.error("Error updating selected category:", error);
+  const [data] = await db
+    .update(roomTable)
+    .set({ selectedCatagory: categoryID })
+    .where(eq(roomTable.id, roomID))
+    .returning();
+
+  if (!data) {
+    console.error("Error updating selected category:", data);
     // Ask clients to resync if DB write failed
     if (global.io) {
       global.io.to(roomID.toString()).emit("room-sync-required");

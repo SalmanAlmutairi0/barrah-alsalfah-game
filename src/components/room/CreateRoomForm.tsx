@@ -38,7 +38,7 @@ export function CreateRoomForm({ onSuccess }: CreateRoomFormProps) {
       onSuccess({
         playerID: roomData.playerID,
         playerName: playerName,
-        roomKey: roomData.room_key,
+        roomKey: roomData.roomKey,
         roomID: roomData.roomID,
       });
     } catch (err) {

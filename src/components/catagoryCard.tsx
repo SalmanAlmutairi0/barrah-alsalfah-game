@@ -24,7 +24,7 @@ export default function CatagoryCard({
   const [loading, setLoading] = useState(false);
 
   const isSelected =
-    room?.selected_catagory === category.id || selectedCategory === category.id;
+    room?.selectedCatagory === category.id || selectedCategory === category.id;
   const canSelect = playerInfo.isHost && !loading;
 
   const handleCategorySelect = async (categoryID: number) => {
@@ -39,7 +39,7 @@ export default function CatagoryCard({
       return;
     }
 
-    if (room?.selected_catagory === categoryID) {
+    if (room?.selectedCatagory === categoryID) {
       toast.info("التصنيف محدد بالفعل", {
         action: {
           label: "إغلاق",
@@ -58,10 +58,12 @@ export default function CatagoryCard({
           room.id,
           categoryID
         );
-        setSelectedCategory(selectedCategoryID.selected_catagory);
+        if (selectedCategoryID.selectedCatagory) {
+          setSelectedCategory(selectedCategoryID.selectedCatagory);
+        }
         savePlayerInfo({
           ...playerInfo,
-          selectedCatagory: selectedCategoryID.selected_catagory,
+          selectedCatagory: selectedCategoryID.selectedCatagory || undefined,
         });
         toast.success("تم تحديث التصنيف بنجاح");
       } else {

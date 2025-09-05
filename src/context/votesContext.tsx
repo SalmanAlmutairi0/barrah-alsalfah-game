@@ -1,16 +1,15 @@
 "use client";
 
 import React, { createContext, useEffect, useState } from "react";
-import { supabase } from "@/lib/supabaseClient";
 import { getVotesAction, sendVoteAction } from "@/actions/votes";
 import { socket } from "@/lib/socket";
 
 export type Vote = {
   id: number;
-  round_id: number;
-  voter_id: number;
-  target_id: number;
-  created_at: string;
+  roundID: number;
+  voterID: number;
+  targetID: number;
+  createdAt: Date;
 };
 
 type VotesContextType = {
@@ -45,7 +44,7 @@ export function VotesProvider({
       setError(null);
 
       // Check if user already voted
-      const existingVote = votes.find((vote) => vote.voter_id === voterId);
+      const existingVote = votes.find((vote) => vote.voterID === voterId);
       if (existingVote) {
         throw new Error("لقد صوتت في هذه الجولة");
       }
@@ -66,12 +65,12 @@ export function VotesProvider({
 
   // Check if user has voted
   const hasUserVoted = (userId: number): boolean => {
-    return votes.some((vote) => vote.voter_id === userId);
+    return votes.some((vote) => vote.voterID === userId);
   };
 
   // Get vote count for a specific player
   const getVoteCount = (playerId: number): number => {
-    return votes.filter((vote) => vote.target_id === playerId).length;
+    return votes.filter((vote) => vote.targetID === playerId).length;
   };
 
   // Initial fetch
@@ -84,7 +83,7 @@ export function VotesProvider({
 
       try {
         const data = await getVotesAction({ roundID });
-        setVotes(data || []);
+        setVotes(data as Vote[]);
       } catch (error) {
         console.error("لم يتم جلب الصوتات:", error);
         setError(error instanceof Error ? error.message : "لم يتم جلب الصوتات");

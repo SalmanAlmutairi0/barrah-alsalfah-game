@@ -1,7 +1,6 @@
 "use client";
 
 import { getRoomInfo } from "@/actions/rooms";
-import { supabase } from "@/lib/supabaseClient";
 import React, { createContext, useEffect, useState } from "react";
 import { socket } from "@/lib/socket";
 
@@ -17,11 +16,11 @@ export type RoomStatus =
 
 export type Room = {
   id: number;
-  room_key: string;
+  roomKey: string;
   status: RoomStatus;
-  host_id: number;
-  selected_catagory: number | null;
-  round: number;
+  hostID: number;
+  selectedCatagory: number | null;
+  roundNumber: number;
 };
 
 type RoomsContextType = {

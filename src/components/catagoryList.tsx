@@ -19,7 +19,7 @@ export default function CatagoryList({ selectedCategory, setSelectedCategory }: 
       try {
         setLoading(true);
         const data = await getCategories();
-        setCategories(data);
+        setCategories(data as Category[]);
       } catch (error) {
         console.error("Error fetching categories:", error);
         toast.error("حدث خطاء", {

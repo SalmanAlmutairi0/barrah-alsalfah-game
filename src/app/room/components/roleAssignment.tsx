@@ -27,8 +27,8 @@ export default function RoleAssignment() {
     const fetchRoundInfo = async () => {
       try {
         const roundInfo = await getRoundInfo(playerInfo.roomID);
-        setSecretWord(roundInfo.secret_word);
-        setIsImposter(roundInfo.imposter_id === playerInfo.playerID);
+        setSecretWord(roundInfo.secretWord || "");
+        setIsImposter(roundInfo.imposterID === playerInfo.playerID);
       } catch (error) {
         console.error("Error during role assignment:", error);
       } finally {
