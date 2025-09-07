@@ -6,6 +6,7 @@ import { usePlayerInfo } from "@/hooks/usePlayerInfo";
 import { getRoundInfo } from "@/actions/round";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import TargetSelection from "@/components/targetSelection";
 
 export default function RoundInProgress() {
   const { playerInfo } = usePlayerInfo();
@@ -31,10 +32,13 @@ export default function RoundInProgress() {
         <DiscussionHeader />
 
         <div className="flex flex-col md:flex-row items-stretch md:items-start gap-4 w-full">
-          <div className="w-full md:basis-2/3 md:max-w-[66%] min-w-0">
+          <div className="w-full md:basis-2/3 md:max-w-[40%] min-w-0">
             <MessagesProvider roundID={roundID || 0} roomID={playerInfo.roomID}>
               <DiscussionChat />
             </MessagesProvider>
+          </div>
+          <div className="w-full md:basis-1/3 md:max-w-[34%]">
+            <TargetSelection />
           </div>
 
           <div className="w-full md:basis-1/3 md:max-w-[34%]">

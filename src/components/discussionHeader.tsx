@@ -60,7 +60,7 @@ export default function DiscussionHeader() {
       const currentTimeSeconds = Math.floor(Date.now() / 1000);
       const elapsedSeconds = currentTimeSeconds - startedAtSeconds;
 
-      const totalDiscussionTime = 120;
+      const totalDiscussionTime = 1000;
 
       const remaining = Math.max(0, totalDiscussionTime - elapsedSeconds);
       setRemainingTime(remaining);
