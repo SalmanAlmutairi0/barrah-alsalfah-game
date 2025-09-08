@@ -20,6 +20,7 @@ import ImposterGotCaught from "../components/imposterGuessPhase";
 import GameFinished from "../components/gameFinished";
 import { socket } from "@/lib/socket";
 import { useSocketPresence } from "@/hooks/useSocketPresence";
+import { TurnsProvider } from "@/context/turnsContext";
 
 type Props = {
   roomKey: string;
@@ -111,7 +112,7 @@ const RenderRoomByStatus = () => {
     case "role_assignment":
       return <RoleAssignment />;
     case "round_in_progress":
-      return <RoundInProgress />;
+      return <RoundInProgressWrapper />;
     case "voting_in_progress":
       return <VotingWrapper />;
     case "imposter_got_caught":
@@ -157,5 +158,32 @@ const VotingWrapper = () => {
     <VotesProvider roundID={roundID} roomId={playerInfo.roomID}>
       <VotingInProgress />
     </VotesProvider>
+  );
+};
+
+const RoundInProgressWrapper = () => {
+  const { playerInfo } = usePlayerInfo();
+  const [roundID, setRoundID] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (!playerInfo.roomID) return;
+
+    const fetchRoundInfo = async () => {
+      try {
+        const round = await getRoundInfo(playerInfo.roomID);
+        setRoundID(round.id);
+      } catch (error) {
+        console.error("Error fetching round info:", error);
+        toast.error("حدث خطأ في تحميل معلومات الجولة");
+      }
+    };
+
+    fetchRoundInfo();
+  }, [playerInfo.roomID]);
+
+  return (
+    <TurnsProvider roundID={roundID || 0} roomID={playerInfo.roomID || 0}>
+      <RoundInProgress />
+    </TurnsProvider>
   );
 };

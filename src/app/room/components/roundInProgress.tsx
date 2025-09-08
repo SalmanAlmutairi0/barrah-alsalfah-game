@@ -13,7 +13,7 @@ export default function RoundInProgress() {
   const [roundID, setRoundID] = useState<number | null>(null);
 
   useEffect(() => {
-    if (!playerInfo.roomID) return;
+    if (!playerInfo.roomID || playerInfo.roomID === 0) return;
     const fetchRoundInfo = async () => {
       try {
         const round = await getRoundInfo(playerInfo.roomID);
@@ -25,6 +25,9 @@ export default function RoundInProgress() {
     };
     fetchRoundInfo();
   }, [playerInfo.roomID]);
+
+
+  console.log("roundID", roundID);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-card to-muted">

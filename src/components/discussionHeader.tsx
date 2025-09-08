@@ -10,10 +10,12 @@ import { getRoundInfo } from "@/actions/round";
 import { chnageRoomStatus } from "@/actions/rooms";
 import { useRoom } from "@/hooks/useRoom";
 import { getCategoryById, Category } from "@/actions/catagory";
+import { useTurns } from "@/hooks/useTurns";
 
 export default function DiscussionHeader() {
   const { playerInfo } = usePlayerInfo();
   const { room } = useRoom();
+  const { isFreeRound, remainingSeconds } = useTurns();
   const [isImposter, setIsImposter] = useState(false);
   const [secretWord, setSecretWord] = useState("");
   const [startedAtSeconds, setStartedAtSeconds] = useState<number | null>(null);
@@ -128,24 +130,50 @@ export default function DiscussionHeader() {
           </div>
         </div>
         <div className="flex items-center justify-center gap-6 mt-4">
-          <Counter
-            timeInSeconds={remainingTime}
-            onCounterFinish={onCounterFinish}
-          />
-          <Separator orientation="vertical" className="h-8" />
-          <div className="flex items-center gap-2">
-            <Hash className="w-5 h-5 text-accent" />
-            <span className="text-lg font-medium">الجولة {room?.round}</span>
-          </div>
-          {selectedCategory && (
+          {isFreeRound && remainingSeconds !== null && remainingSeconds > 0 ? (
             <>
+              <Counter
+                timeInSeconds={remainingSeconds}
+                onCounterFinish={onCounterFinish}
+              />
               <Separator orientation="vertical" className="h-8" />
               <div className="flex items-center gap-2">
-                <Tag className="w-5 h-5 text-secondary-foreground" />
+                <Hash className="w-5 h-5 text-accent" />
                 <span className="text-lg font-medium">
-                  {selectedCategory.icon} {selectedCategory.name}
+                  الجولة {room?.round}
                 </span>
               </div>
+              {selectedCategory && (
+                <>
+                  <Separator orientation="vertical" className="h-8" />
+                  <div className="flex items-center gap-2">
+                    <Tag className="w-5 h-5 text-secondary-foreground" />
+                    <span className="text-lg font-medium">
+                      {selectedCategory.icon} {selectedCategory.name}
+                    </span>
+                  </div>
+                </>
+              )}
+            </>
+          ) : (
+            <>
+              <div className="flex items-center gap-2">
+                <Hash className="w-5 h-5 text-accent" />
+                <span className="text-lg font-medium">
+                  الجولة {room?.round}
+                </span>
+              </div>
+              {selectedCategory && (
+                <>
+                  <Separator orientation="vertical" className="h-8" />
+                  <div className="flex items-center gap-2">
+                    <Tag className="w-5 h-5 text-secondary-foreground" />
+                    <span className="text-lg font-medium">
+                      {selectedCategory.icon} {selectedCategory.name}
+                    </span>
+                  </div>
+                </>
+              )}
             </>
           )}
         </div>

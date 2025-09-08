@@ -7,7 +7,10 @@ import { usePlayerInfo } from "@/hooks/usePlayerInfo";
 import { chnageRoomStatus } from "@/actions/rooms";
 import { toast } from "sonner";
 import { useState } from "react";
-import { updateRoundStartTime } from "@/actions/round";
+import { getRoundInfo, updateRoundStartTime } from "@/actions/round";
+import { createTurns } from "@/actions/turns";
+import { usePlayers } from "@/hooks/usePlayers";
+import { useRoom } from "@/hooks/useRoom";
 
 export default function RoleRevealedView({
   isImposter,
@@ -19,13 +22,20 @@ export default function RoleRevealedView({
   isHost: boolean;
 }) {
   const { playerInfo } = usePlayerInfo();
+  const { players, playersLoading } = usePlayers();
   const [loading, setLoading] = useState(false);
 
   const handleStartGame = async () => {
-    if (!playerInfo.roomID) return;
+    if (!playerInfo.roomID || playersLoading) return;
 
     try {
       setLoading(true);
+
+
+      // const round = await getRoundInfo(playerInfo.roomID);
+      // create turn for each player
+      await createTurns(playerInfo.roomID, playerInfo.roundID!, players);
+
       await chnageRoomStatus({
         roomID: playerInfo.roomID,
         status: "round_in_progress",
