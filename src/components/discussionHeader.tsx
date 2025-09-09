@@ -15,11 +15,10 @@ import { useTurns } from "@/hooks/useTurns";
 export default function DiscussionHeader() {
   const { playerInfo } = usePlayerInfo();
   const { room } = useRoom();
-  const { isFreeRound, remainingSeconds } = useTurns();
+  const { isFreeRound, remainingSeconds, availableTurns } = useTurns();
   const [isImposter, setIsImposter] = useState(false);
   const [secretWord, setSecretWord] = useState("");
-  const [startedAtSeconds, setStartedAtSeconds] = useState<number | null>(null);
-  const [remainingTime, setRemainingTime] = useState(180); // Default 3 minutes
+
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(
     null
   );
@@ -56,22 +55,6 @@ export default function DiscussionHeader() {
     }, 4000); // 4 seconds after the first toast appears
   };
 
-  // Calculate remaining time when startedAtSeconds changes
-  useEffect(() => {
-    if (startedAtSeconds) {
-      const currentTimeSeconds = Math.floor(Date.now() / 1000);
-      const elapsedSeconds = currentTimeSeconds - startedAtSeconds;
-
-      const totalDiscussionTime = 1000;
-
-      const remaining = Math.max(0, totalDiscussionTime - elapsedSeconds);
-      setRemainingTime(remaining);
-    } else {
-      // If no start time, use full timer
-      setRemainingTime(120);
-    }
-  }, [startedAtSeconds]);
-
   useEffect(() => {
     if (!playerInfo.roomID) return;
 
@@ -81,7 +64,6 @@ export default function DiscussionHeader() {
 
         setIsImposter(round.imposter_id === playerInfo.playerID);
         setSecretWord(round.secret_word);
-        setStartedAtSeconds(round.started_at);
       } catch (error) {
         console.error("Error fetching round info:", error);
         toast.error("حدث خطأ ما");
@@ -130,7 +112,9 @@ export default function DiscussionHeader() {
           </div>
         </div>
         <div className="flex items-center justify-center gap-6 mt-4">
-          {isFreeRound && remainingSeconds !== null && remainingSeconds > 0 ? (
+          {availableTurns.length === 0 &&
+          isFreeRound &&
+          remainingSeconds !== null ? (
             <>
               <Counter
                 timeInSeconds={remainingSeconds}

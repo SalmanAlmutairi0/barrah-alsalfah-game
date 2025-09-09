@@ -67,6 +67,32 @@ export const TurnsProvider = ({
           () => turns.find((t) => !!t.target_id) || turns[0] || null
         );
         console.log("Current turn:", currentTurn);
+
+        // Check if we should start free round immediately after fetching
+        if (!turns || turns.length === 0) {
+          console.log("No turns available, checking for free round");
+          setIsFreeRound(true);
+          setRemainingSeconds(60);
+
+          // Start countdown
+          setTimeout(() => {
+            if (countdownIntervalRef.current) {
+              clearInterval(countdownIntervalRef.current);
+            }
+            countdownIntervalRef.current = setInterval(() => {
+              setRemainingSeconds((prev) => {
+                if (prev === null || prev <= 1) {
+                  if (countdownIntervalRef.current) {
+                    clearInterval(countdownIntervalRef.current);
+                    countdownIntervalRef.current = null;
+                  }
+                  return null;
+                }
+                return prev - 1;
+              });
+            }, 1000);
+          }, 100);
+        }
       } catch (error) {
         console.error("Error fetching turns:", error);
       } finally {
@@ -109,6 +135,33 @@ export const TurnsProvider = ({
             return [...prevHistory, { ...completedTurn, is_completed: true }];
           });
         }
+
+        // Check if this was the last turn - if so, start free round
+        if (filtered.length === 0) {
+          console.log("Last turn completed, starting free round!");
+          setIsFreeRound(true);
+          setRemainingSeconds(60);
+
+          // Start countdown
+          setTimeout(() => {
+            if (countdownIntervalRef.current) {
+              clearInterval(countdownIntervalRef.current);
+            }
+            countdownIntervalRef.current = setInterval(() => {
+              setRemainingSeconds((prev) => {
+                if (prev === null || prev <= 1) {
+                  if (countdownIntervalRef.current) {
+                    clearInterval(countdownIntervalRef.current);
+                    countdownIntervalRef.current = null;
+                  }
+                  return null;
+                }
+                return prev - 1;
+              });
+            }, 1000);
+          }, 100);
+        }
+
         return filtered;
       });
       console.log("Current turn:", currentTurn);
@@ -157,31 +210,44 @@ export const TurnsProvider = ({
     if (!availableTurns.length && !turnLoading) {
       // All turns completed - start free round
       if (!isFreeRound) {
+        console.log("Starting free round!");
+
+        // Clear any existing timer first
+        if (countdownIntervalRef.current) {
+          clearInterval(countdownIntervalRef.current);
+          countdownIntervalRef.current = null;
+        }
+
+        // Set state changes in correct order
         setIsFreeRound(true);
         setRemainingSeconds(60); // 1 minute for free round
 
-        // Start 1-minute countdown for free round
-        if (countdownIntervalRef.current) {
-          clearInterval(countdownIntervalRef.current);
-        }
-
-        countdownIntervalRef.current = setInterval(() => {
-          setRemainingSeconds((prev) => {
-            if (prev === null || prev <= 1) {
-              if (countdownIntervalRef.current) {
-                clearInterval(countdownIntervalRef.current);
-                countdownIntervalRef.current = null;
+        // Start 1-minute countdown for free round after state update
+        setTimeout(() => {
+          countdownIntervalRef.current = setInterval(() => {
+            setRemainingSeconds((prev) => {
+              if (prev === null || prev <= 1) {
+                if (countdownIntervalRef.current) {
+                  clearInterval(countdownIntervalRef.current);
+                  countdownIntervalRef.current = null;
+                }
+                return null;
               }
-              return null;
-            }
-            return prev - 1;
-          });
-        }, 1000);
+              return prev - 1;
+            });
+          }, 1000);
+        }, 100); // Small delay to ensure state is updated
       }
-    } else {
+    } else if (availableTurns.length > 0) {
+      // Reset free round if there are available turns
       setIsFreeRound(false);
+      if (countdownIntervalRef.current) {
+        clearInterval(countdownIntervalRef.current);
+        countdownIntervalRef.current = null;
+      }
+      setRemainingSeconds(null);
     }
-  }, [availableTurns, turnLoading, isFreeRound]);
+  }, [availableTurns.length, turnLoading]);
 
   // Auto-complete the turn 30s after target selection, resilient to refresh
   useEffect(() => {

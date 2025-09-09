@@ -13,7 +13,7 @@ export default function Counter({
   onCounterFinish,
   clockColor = "primary",
 }: CounterProps) {
-  const [secondsLeft, setSecondsLeft] = useState(timeInSeconds);
+  const [hasFinished, setHasFinished] = useState(false);
 
   function formatTime(seconds: number) {
     const m = Math.floor(seconds / 60);
@@ -22,33 +22,33 @@ export default function Counter({
   }
 
   useEffect(() => {
-    setSecondsLeft(timeInSeconds);
+    // Reset finished state when timeInSeconds changes
+    setHasFinished(false);
   }, [timeInSeconds]);
 
   useEffect(() => {
-    if (secondsLeft <= 0) {
+    // Call onCounterFinish when timer reaches 0 and hasn't been called yet
+    if (timeInSeconds <= 1 && !hasFinished) {
+      setHasFinished(true);
       onCounterFinish();
-      return;
     }
-
-    const interval = setInterval(() => {
-      setSecondsLeft((prev) => (prev > 0 ? prev - 1 : 0));
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, [secondsLeft, onCounterFinish]);
+  }, [timeInSeconds, onCounterFinish, hasFinished]);
 
   return (
     <div className="flex items-center gap-2">
-      <Clock className={`w-5 h-5 ${clockColor === "primary" ? "text-primary" : "text-destructive"}`} />
+      <Clock
+        className={`w-5 h-5 ${
+          clockColor === "primary" ? "text-primary" : "text-destructive"
+        }`}
+      />
       <span
         className={`text-2xl font-bold ${
-          secondsLeft <= 30
+          timeInSeconds <= 30
             ? "text-destructive animate-pulse"
             : "text-foreground"
         }`}
       >
-        {formatTime(secondsLeft)}
+        {formatTime(timeInSeconds)}
       </span>
     </div>
   );
