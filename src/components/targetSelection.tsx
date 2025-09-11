@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Badge } from "./ui/badge";
 import { ScrollArea } from "./ui/scroll-area";
@@ -58,6 +58,12 @@ export default function TargetSelection() {
     }
   };
 
+  useEffect(() => {
+    if (currentTurn?.questionar_id === playerInfo.playerID) {
+      toast.success("الدور عليك اختار احد تسألة");
+    }
+  }, [currentTurn?.questionar_id]);
+
   if (turnLoading || playerInfoLoading) {
     return (
       <Card>
@@ -80,7 +86,7 @@ export default function TargetSelection() {
   }
 
   return (
-    <Card>
+    <Card className="border-2 border-primary/20 shadow-lg max-h-[600px] ">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Users className="w-5 h-5" />
@@ -112,24 +118,24 @@ export default function TargetSelection() {
 
           {/* this is for when the target is not selected */}
           {!currentTurn?.target_id && !isFreeRound && (
-            <Card className="bg-amber-50 border-amber-200 dark:bg-amber-950/20 dark:border-amber-800">
-              <CardContent className="p-4">
-                <div className="flex flex-col items-center justify-center gap-3">
+            <Card className="border-2 border-accent/20 shadow-lg bg-gradient-to-r from-accent/10 to-primary/10">
+              <CardContent className="p-6">
+                <div className="flex flex-col items-center justify-center gap-4">
                   {/* Pulse indicator */}
-                  <div className="flex justify-center items-center w-3 h-3 rounded-full bg-amber-500 animate-pulse"></div>
+                  <div className="flex justify-center items-center w-4 h-4 rounded-full bg-accent animate-pulse shadow-lg"></div>
 
                   {/* Player info */}
                   <div
-                    className="flex items-center justify-center gap-2"
+                    className="flex items-center justify-center gap-3"
                     dir="rtl"
                   >
-                    <div className="bg-primary text-primary-foreground px-3 py-1.5 rounded-lg text-sm font-medium">
+                    <div className="bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-semibold shadow-sm">
                       {getPlayerName(currentTurn?.questionar_id || 0) ||
                         "لا يوجد"}
                     </div>
-                    <UserSearch className="w-4 h-4 text-amber-600 dark:text-amber-400" />
-                    <span className="text-sm text-amber-700 dark:text-amber-300 font-medium">
-                      يختار الهدف...
+                    <UserSearch className="w-5 h-5 text-accent" />
+                    <span className="text-sm text-accent font-semibold">
+                     يختار مين يسأل
                     </span>
                   </div>
 
@@ -137,10 +143,10 @@ export default function TargetSelection() {
                   {isCurrentPlayerTurn && (
                     <Button
                       size="sm"
-                      className="text-sm bg-amber-600 hover:bg-amber-700 text-white dark:bg-amber-600 dark:hover:bg-amber-700"
+                      className="text-sm bg-primary rounded-xs text-white shadow-lg hover:shadow-lg transition-all duration-200"
                       onClick={() => setIsSelectTargetDialogOpen(true)}
                     >
-                      اختر من تريد أن تسأله
+                      اختر من تبي تسأل
                     </Button>
                   )}
                 </div>
@@ -150,24 +156,26 @@ export default function TargetSelection() {
 
           {/* this is for when the target is selected */}
           {currentTurn?.target_id && !isFreeRound && (
-            <Card className="bg-primary/5 border-primary/20">
-              <CardContent className="p-4">
+            <Card className="border-2 border-primary/20 shadow-lg bg-gradient-to-r from-primary/10 to-secondary/10">
+              <CardContent className="p-6">
                 <div
-                  className="flex items-center justify-center gap-3"
+                  className="flex items-center justify-center gap-4"
                   dir="rtl"
                 >
-                  <div className="bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-medium">
+                  <div className="bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-semibold shadow-sm">
                     {getPlayerName(currentTurn?.questionar_id || 0) ||
                       "لا يوجد"}
                   </div>
-                  <ArrowLeft className="w-5 h-5 text-primary" />
-                  <div className="bg-secondary text-secondary-foreground px-4 py-2 rounded-lg text-sm font-medium">
+                  <ArrowLeft className="w-6 h-6 text-primary animate-pulse" />
+                  <div className="bg-secondary text-secondary-foreground px-4 py-2 rounded-lg text-sm font-semibold shadow-sm">
                     {getPlayerName(currentTurn?.target_id || 0) || "لا يوجد"}
                   </div>
                 </div>
-                <p className="text-center text-xs text-muted-foreground mt-2">
-                  يسأل الآن
-                </p>
+                <div className="text-center mt-4">
+                  <p className="text-sm font-semibold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+                    يسأل الآن
+                  </p>
+                </div>
               </CardContent>
             </Card>
           )}
@@ -183,7 +191,7 @@ export default function TargetSelection() {
                       جولة حرة!
                     </h3>
                     <p className="text-sm text-green-600 dark:text-green-400">
-                      جميع اللاعبين سألوا أسئلتهم - اسألوا ما تشاءون!
+                      جولة حرة! اسألوا بعض 
                     </p>
                   </div>
                 </div>
@@ -216,7 +224,10 @@ export default function TargetSelection() {
                       </span>
                     </div>
                     <span className="text-xs text-muted-foreground">
-                      {turn.created_at}
+                      { new Date(turn.created_at).toLocaleTimeString([], {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
                     </span>
                   </div>
                 </div>
